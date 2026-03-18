@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { navigate } from "../App";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
@@ -19,7 +19,7 @@ const MOCK_ANIMALS = [
     breed: "Sahiwal",
     age: "4 years",
     weight: "520 kg",
-    location: "Faisalabad",
+    location: "Faisalabad, Punjab",
     price: "PKR 220,000",
   },
   {
@@ -28,17 +28,161 @@ const MOCK_ANIMALS = [
     breed: "Beetal",
     age: "2 years",
     weight: "65 kg",
-    location: "Multan",
+    location: "Multan, Punjab",
     price: "PKR 45,000",
   },
   {
     id: 4,
-    title: "Bakra Eid Special",
+    title: "Teddy Bakra",
     breed: "Teddy Goat",
     age: "1.5 years",
     weight: "55 kg",
-    location: "Karachi",
+    location: "Karachi, Sindh",
     price: "PKR 38,000",
+  },
+  {
+    id: 5,
+    title: "Nili-Ravi Buffalo",
+    breed: "Nili-Ravi",
+    age: "5 years",
+    weight: "600 kg",
+    location: "Sahiwal, Punjab",
+    price: "PKR 350,000",
+  },
+  {
+    id: 6,
+    title: "Kundi Buffalo",
+    breed: "Kundi",
+    age: "4 years",
+    weight: "550 kg",
+    location: "Hyderabad, Sindh",
+    price: "PKR 310,000",
+  },
+  {
+    id: 7,
+    title: "Kajli Sheep",
+    breed: "Kajli",
+    age: "2 years",
+    weight: "70 kg",
+    location: "Sargodha, Punjab",
+    price: "PKR 55,000",
+  },
+  {
+    id: 8,
+    title: "Lohani Sheep",
+    breed: "Lohani",
+    age: "3 years",
+    weight: "80 kg",
+    location: "Peshawar, KPK",
+    price: "PKR 62,000",
+  },
+  {
+    id: 9,
+    title: "Dhanni Bull",
+    breed: "Dhanni",
+    age: "3 years",
+    weight: "490 kg",
+    location: "Chakwal, Punjab",
+    price: "PKR 195,000",
+  },
+  {
+    id: 10,
+    title: "Red Sindhi Cow",
+    breed: "Red Sindhi",
+    age: "4 years",
+    weight: "400 kg",
+    location: "Sukkur, Sindh",
+    price: "PKR 165,000",
+  },
+  {
+    id: 11,
+    title: "Kankrej Bull",
+    breed: "Kankrej",
+    age: "5 years",
+    weight: "580 kg",
+    location: "Bahawalpur, Punjab",
+    price: "PKR 245,000",
+  },
+  {
+    id: 12,
+    title: "Barbari Goat",
+    breed: "Barbari",
+    age: "1 year",
+    weight: "40 kg",
+    location: "Gujranwala, Punjab",
+    price: "PKR 28,000",
+  },
+  {
+    id: 13,
+    title: "Rakhshani Sheep",
+    breed: "Rakhshani",
+    age: "2.5 years",
+    weight: "90 kg",
+    location: "Quetta, Balochistan",
+    price: "PKR 75,000",
+  },
+  {
+    id: 14,
+    title: "Cholistani Cow",
+    breed: "Cholistani",
+    age: "3 years",
+    weight: "420 kg",
+    location: "Rahim Yar Khan",
+    price: "PKR 175,000",
+  },
+  {
+    id: 15,
+    title: "Murghabi Buffalo",
+    breed: "Murghabi",
+    age: "4 years",
+    weight: "520 kg",
+    location: "Sheikhupura, Punjab",
+    price: "PKR 290,000",
+  },
+  {
+    id: 16,
+    title: "Dera Din Panah Goat",
+    breed: "Dera Din Panah",
+    age: "2 years",
+    weight: "72 kg",
+    location: "Muzaffargarh, Punjab",
+    price: "PKR 52,000",
+  },
+  {
+    id: 17,
+    title: "Harnai Sheep",
+    breed: "Harnai",
+    age: "3 years",
+    weight: "85 kg",
+    location: "Ziarat, Balochistan",
+    price: "PKR 68,000",
+  },
+  {
+    id: 18,
+    title: "Achai Cattle",
+    breed: "Achai",
+    age: "4 years",
+    weight: "350 kg",
+    location: "Dir, KPK",
+    price: "PKR 155,000",
+  },
+  {
+    id: 19,
+    title: "Tharparkar Cow",
+    breed: "Tharparkar",
+    age: "3.5 years",
+    weight: "390 kg",
+    location: "Tharparkar, Sindh",
+    price: "PKR 160,000",
+  },
+  {
+    id: 20,
+    title: "Dajal Sheep",
+    breed: "Dajal",
+    age: "2 years",
+    weight: "78 kg",
+    location: "Dera Ghazi Khan",
+    price: "PKR 60,000",
   },
 ];
 
@@ -1150,7 +1294,273 @@ function JourneySection() {
   );
 }
 
+function FeaturedLivestockSlider() {
+  const CARD_WIDTH = 214; // px
+  const CARD_GAP = 16; // px
+  const VISIBLE_CARDS = 4;
+  const totalCards = MOCK_ANIMALS.length;
+
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [introPlayed, setIntroPlayed] = useState(false);
+  const [introActive, setIntroActive] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartX = useRef(0);
+  const dragStartIndex = useRef(0);
+
+  const maxIndex = totalCards - VISIBLE_CARDS;
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !introPlayed) {
+          setIntroActive(true);
+          setIntroPlayed(true);
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.3 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [introPlayed]);
+
+  const goTo = (idx: number) => {
+    setCurrentIndex(Math.max(0, Math.min(maxIndex, idx)));
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    dragStartX.current = e.clientX;
+    dragStartIndex.current = currentIndex;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const delta = dragStartX.current - e.clientX;
+    const cardStep = CARD_WIDTH + CARD_GAP;
+    const steps = Math.round(delta / cardStep);
+    goTo(dragStartIndex.current + steps);
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    dragStartX.current = e.touches[0].clientX;
+    dragStartIndex.current = currentIndex;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const delta = dragStartX.current - e.changedTouches[0].clientX;
+    const cardStep = CARD_WIDTH + CARD_GAP;
+    const steps = Math.round(delta / cardStep);
+    if (Math.abs(steps) >= 1) goTo(dragStartIndex.current + steps);
+  };
+
+  const trackTranslateX = -(currentIndex * (CARD_WIDTH + CARD_GAP));
+
+  return (
+    <div ref={sectionRef} className="py-16" style={{ background: "#F4EFE3" }}>
+      <style>{`
+        @keyframes none {}
+        .livestock-card {
+          width: ${CARD_WIDTH}px;
+          min-width: ${CARD_WIDTH}px;
+          height: 310px;
+          border-radius: 0;
+          background: #fff;
+          box-shadow: 0 2px 12px rgba(23,59,42,0.10);
+          overflow: hidden;
+          flex-shrink: 0;
+          display: flex;
+          flex-direction: column;
+        }
+        .livestock-track {
+          display: flex;
+          gap: ${CARD_GAP}px;
+          transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+          will-change: transform;
+          user-select: none;
+          cursor: grab;
+        }
+        .livestock-track:active { cursor: grabbing; }
+        .livestock-intro-card {
+          transition: transform 0.65s cubic-bezier(0.4,0,0.2,1);
+        }
+      `}</style>
+      <div className="max-w-6xl mx-auto px-4">
+        <h2 className="text-3xl font-bold text-[#1F2A22] mb-2">
+          Featured Livestock
+        </h2>
+        <p className="text-[#5E6660] mb-8">
+          Hand-picked animals from verified sellers
+        </p>
+
+        <div className="relative">
+          {/* Left Arrow */}
+          <button
+            type="button"
+            data-ocid="featured.pagination_prev"
+            onClick={() => goTo(currentIndex - 1)}
+            disabled={currentIndex === 0}
+            className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center bg-[#173B2A] text-white shadow-lg disabled:opacity-30 transition-opacity"
+            style={{ borderRadius: 0 }}
+          >
+            ‹
+          </button>
+
+          {/* Viewport */}
+          <div
+            className="overflow-hidden"
+            style={{
+              width: `${VISIBLE_CARDS * CARD_WIDTH + (VISIBLE_CARDS - 1) * CARD_GAP}px`,
+              maxWidth: "100%",
+            }}
+          >
+            <div
+              ref={trackRef}
+              className="livestock-track"
+              style={{ transform: `translateX(${trackTranslateX}px)` }}
+              onMouseDown={introActive ? handleMouseDown : undefined}
+              onMouseMove={introActive ? handleMouseMove : undefined}
+              onMouseUp={introActive ? handleMouseUp : undefined}
+              onMouseLeave={introActive ? handleMouseUp : undefined}
+              onTouchStart={introActive ? handleTouchStart : undefined}
+              onTouchEnd={introActive ? handleTouchEnd : undefined}
+            >
+              {MOCK_ANIMALS.map((animal, i) => {
+                // Spread intro: calculate natural offset from center
+                const centerIdx = (VISIBLE_CARDS - 1) / 2;
+                const naturalOffsetFromCenter =
+                  (i - centerIdx) * (CARD_WIDTH + CARD_GAP);
+                // Before intro: all cards pulled toward center (negative of their natural offset)
+                // After intro (introActive): translateX(0) = natural position
+                const introTransform = introActive
+                  ? "translateX(0px)"
+                  : `translateX(${-naturalOffsetFromCenter}px)`;
+                const delay = introActive ? `${i * 0.045}s` : "0s";
+
+                return (
+                  <div
+                    key={animal.id}
+                    className="livestock-card livestock-intro-card"
+                    style={{
+                      transitionDelay: delay,
+                      transform: introTransform,
+                    }}
+                  >
+                    <div
+                      className="relative"
+                      style={{ height: 180, flexShrink: 0 }}
+                    >
+                      <img
+                        src={`https://picsum.photos/400/300?random=${animal.id + 20}`}
+                        alt={animal.title}
+                        className="w-full h-full object-cover"
+                        draggable={false}
+                      />
+                      <span
+                        className="absolute top-2 right-2 text-xs font-bold px-2 py-0.5"
+                        style={{
+                          background: "#173B2A",
+                          color: "#fff",
+                          borderRadius: 0,
+                        }}
+                      >
+                        ✓ Verified
+                      </span>
+                    </div>
+                    <div className="p-3 flex flex-col flex-1 justify-between">
+                      <div>
+                        <h3 className="font-bold text-[#1F2A22] text-sm mb-0.5 truncate">
+                          {animal.title}
+                        </h3>
+                        <p className="text-xs text-[#5E6660] mb-0.5">
+                          🐄 {animal.breed}
+                        </p>
+                        <p className="text-xs text-[#5E6660] mb-0.5">
+                          📅 {animal.age} · ⚖️ {animal.weight}
+                        </p>
+                        <p className="text-xs text-[#5E6660]">
+                          📍 {animal.location}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="font-bold text-[#173B2A] text-xs">
+                          {animal.price}
+                        </span>
+                        <button
+                          type="button"
+                          data-ocid={`featured.item.${i + 1}`}
+                          onClick={() => navigate("/auth")}
+                          className="btn-green text-xs py-1 px-3"
+                          style={{ borderRadius: 0 }}
+                        >
+                          View
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Right Arrow */}
+          <button
+            type="button"
+            data-ocid="featured.pagination_next"
+            onClick={() => goTo(currentIndex + 1)}
+            disabled={currentIndex >= maxIndex}
+            className="absolute -right-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center bg-[#173B2A] text-white shadow-lg disabled:opacity-30 transition-opacity"
+            style={{ borderRadius: 0 }}
+          >
+            ›
+          </button>
+        </div>
+
+        {/* Dot indicators */}
+        <div className="flex justify-center gap-1.5 mt-6">
+          {Array.from({ length: maxIndex + 1 }, (_, i) => i).map((i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => goTo(i)}
+              className="transition-all duration-300"
+              style={{
+                width: currentIndex === i ? 20 : 8,
+                height: 8,
+                borderRadius: 0,
+                background: currentIndex === i ? "#173B2A" : "#A8C4B0",
+                border: "none",
+                cursor: "pointer",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Landing() {
+  const heroImages = [
+    "/assets/generated/hero-livestock-1.dim_800x500.jpg",
+    "/assets/generated/hero-livestock-2.dim_800x500.jpg",
+    "/assets/generated/hero-livestock-3.dim_800x500.jpg",
+    "/assets/generated/hero-livestock-4.dim_800x500.jpg",
+  ];
+  const [heroIndex, setHeroIndex] = useState(0);
+  useEffect(() => {
+    const t = setInterval(
+      () => setHeroIndex((i) => (i + 1) % heroImages.length),
+      17000,
+    );
+    return () => clearInterval(t);
+  }, []);
   return (
     <div className="min-h-screen">
       <Navbar dark />
@@ -1210,24 +1620,81 @@ export default function Landing() {
               className="animate-fade-up relative"
               style={{ animationDelay: "0.15s" }}
             >
-              {/* Gradient border frame */}
+              {/* Gradient border frame — rotated -10deg, sharp corners */}
               <div
-                className="rounded-2xl p-1"
                 style={{
-                  background:
-                    "linear-gradient(135deg, #2E7D32 0%, #D07A2A 50%, #5A8A2E 100%)",
-                  boxShadow:
-                    "0 0 40px rgba(208,122,42,0.3), 0 20px 60px rgba(0,0,0,0.4)",
+                  transform: "perspective(900px) rotateY(10deg) rotateZ(4deg)",
+                  display: "inline-block",
                 }}
               >
-                <div className="rounded-2xl overflow-hidden aspect-video relative bg-black">
-                  <iframe
-                    src="https://www.youtube.com/embed/pCFTe_EWyAA?autoplay=1&mute=1&loop=1&playlist=pCFTe_EWyAA&controls=0&rel=0"
-                    title="Livestock Video"
-                    allow="autoplay; encrypted-media"
-                    className="w-full h-full absolute inset-0"
-                    style={{ border: "none" }}
-                  />
+                <div
+                  className="p-1"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #2E7D32 0%, #D07A2A 50%, #5A8A2E 100%)",
+                    boxShadow:
+                      "0 0 40px rgba(208,122,42,0.3), 0 20px 60px rgba(0,0,0,0.4)",
+                    borderRadius: 0,
+                    width: 520,
+                    height: 350,
+                  }}
+                >
+                  <div
+                    style={{
+                      overflow: "hidden",
+                      borderRadius: 0,
+                      width: "100%",
+                      height: "100%",
+                      position: "relative",
+                      background: "#000",
+                    }}
+                  >
+                    {heroImages.map((src, idx) => (
+                      <img
+                        key={src}
+                        src={src}
+                        alt={`Livestock ${idx + 1}`}
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          opacity: idx === heroIndex ? 1 : 0,
+                          transition: "opacity 1.2s ease-in-out",
+                        }}
+                      />
+                    ))}
+                    {/* dot indicators */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: 10,
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        display: "flex",
+                        gap: 6,
+                        zIndex: 10,
+                      }}
+                    >
+                      {heroImages.map((_, idx) => (
+                        <div
+                          // biome-ignore lint/suspicious/noArrayIndexKey: stable static array
+                          key={idx}
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            background:
+                              idx === heroIndex
+                                ? "#D07A2A"
+                                : "rgba(255,255,255,0.5)",
+                            transition: "background 0.4s",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1411,62 +1878,7 @@ export default function Landing() {
       </div>
 
       {/* Featured Listings */}
-      <div className="py-16" style={{ background: "#F4EFE3" }}>
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-[#1F2A22] mb-2">
-            Featured Livestock
-          </h2>
-          <p className="text-[#5E6660] mb-8">
-            Hand-picked animals from verified sellers
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {MOCK_ANIMALS.map((animal, i) => (
-              <div
-                key={animal.id}
-                className="bg-white rounded-2xl overflow-hidden card-shadow hover:shadow-xl hover:-translate-y-1 transition-all duration-300 animate-fade-up"
-                style={{ animationDelay: `${i * 0.08}s` }}
-              >
-                <div className="relative overflow-hidden">
-                  <img
-                    src={`https://picsum.photos/400/250?random=${animal.id + 10}`}
-                    alt={animal.title}
-                    className="w-full h-44 object-cover hover:scale-105 transition-transform duration-500"
-                  />
-                  <span className="absolute top-2 right-2 verified-badge">
-                    ✓ Verified
-                  </span>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-[#1F2A22] mb-1">
-                    {animal.title}
-                  </h3>
-                  <p className="text-xs text-[#5E6660] mb-0.5">
-                    🐄 {animal.breed}
-                  </p>
-                  <p className="text-xs text-[#5E6660] mb-0.5">
-                    📅 {animal.age} &nbsp;⚖️ {animal.weight}
-                  </p>
-                  <p className="text-xs text-[#5E6660] mb-3">
-                    📍 {animal.location}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#173B2A] text-sm">
-                      {animal.price}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => navigate("/auth")}
-                      className="btn-green text-xs py-1.5 px-3 hover:scale-105 transition-transform"
-                    >
-                      View
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <FeaturedLivestockSlider />
 
       {/* How It Works */}
       <div className="py-16 bg-white">
