@@ -237,14 +237,38 @@ function AuctionSection() {
   }, []);
 
   return (
-    <section
-      style={{
-        background:
-          "linear-gradient(180deg, #0A1F14 0%, #0F2C1F 60%, #091810 100%)",
-      }}
-      className="relative overflow-hidden"
-    >
+    <>
       <style>{`
+        @keyframes waveFloat01 {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-6px); }
+        }
+        @keyframes sweatDrop {
+          0% { transform: translateY(0px); opacity: 0.8; }
+          80% { transform: translateY(12px); opacity: 0.2; }
+          100% { transform: translateY(14px); opacity: 0; }
+        }
+        @keyframes sunRotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes sunPulse {
+          0%, 100% { transform: scale(0.94); opacity: 0.05; }
+          50% { transform: scale(1.06); opacity: 0.1; }
+        }
+        @keyframes orbitRotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+      <section
+        style={{
+          background:
+            "linear-gradient(180deg, #0A1F14 0%, #0F2C1F 60%, #091810 100%)",
+        }}
+        className="relative overflow-hidden"
+      >
+        <style>{`
         @keyframes auctionFadeUp {
           0% { opacity: 0; transform: translateY(50px); }
           100% { opacity: 1; transform: translateY(0); }
@@ -272,253 +296,257 @@ function AuctionSection() {
         .auction-card-3, .auction-card-4 { opacity: 0; }
       `}</style>
 
-      {/* Subtle top accent line */}
-      <div
-        style={{
-          height: 3,
-          background:
-            "linear-gradient(90deg, transparent, #D07A2A, #F5A623, #D07A2A, transparent)",
-        }}
-      />
-
-      <div ref={ref} className="relative z-10">
-        {/* Section heading */}
-        <div className="text-center pt-10 md:pt-16 pb-6 md:pb-10 px-4">
-          <div className="auction-heading inline-flex items-center gap-3 mb-5">
-            <span
-              className="inline-block w-2.5 h-2.5 rounded-full bg-red-500"
-              style={{ animation: "liveBlink 1.2s ease-in-out infinite" }}
-            />
-            <span
-              className="text-xs font-bold tracking-widest uppercase"
-              style={{ color: "#F5A623" }}
-            >
-              Live Now
-            </span>
-            <span
-              className="inline-block w-2.5 h-2.5 rounded-full bg-red-500"
-              style={{ animation: "liveBlink 1.2s ease-in-out infinite 0.6s" }}
-            />
-          </div>
-          <h2
-            className="auction-heading text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              textShadow: "0 2px 30px rgba(245,166,35,0.2)",
-            }}
-          >
-            Live{" "}
-            <span
-              style={{
-                background: "linear-gradient(90deg, #D07A2A, #F5A623, #FFD700)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Auctions
-            </span>
-          </h2>
-          <p className="auction-subtitle text-gray-400 text-sm md:text-lg mt-4 max-w-xl mx-auto px-4">
-            Watch real-time livestock auctions. Bid on premium cattle, goats,
-            and more — directly from verified farms across Pakistan.
-          </p>
-        </div>
-
-        {/* 4 tall video containers — flush, no gap, no border */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
-          {AUCTION_ITEMS.map((item, i) => (
-            <div
-              key={item.id}
-              className={`auction-card-${i + 1} relative overflow-hidden w-full`}
-              style={{ minHeight: "clamp(280px, 45vw, 520px)" }}
-              data-ocid={`auction.item.${i + 1}`}
-            >
-              {/* YouTube embed fills the full container */}
-              <iframe
-                src={`https://www.youtube.com/embed/${item.id}?autoplay=1&mute=1&loop=1&playlist=${item.id}&controls=0&rel=0&showinfo=0&modestbranding=1`}
-                title={item.heading}
-                allow="autoplay; encrypted-media"
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  border: "none",
-                  // Scale up slightly to hide letterbox bars
-                  transform: "scale(1.05)",
-                  objectFit: "cover",
-                }}
-              />
-
-              {/* Scanline overlay for cinematic feel */}
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  background:
-                    "repeating-linear-gradient(0deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 1px, transparent 1px, transparent 3px)",
-                  pointerEvents: "none",
-                  zIndex: 2,
-                }}
-              />
-
-              {/* Dark gradient at top for text legibility */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "55%",
-                  background:
-                    "linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%)",
-                  zIndex: 3,
-                  pointerEvents: "none",
-                }}
-              />
-
-              {/* Dark gradient at bottom */}
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: "40%",
-                  background:
-                    "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)",
-                  zIndex: 3,
-                  pointerEvents: "none",
-                }}
-              />
-
-              {/* Tag badge (top-left) */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: 16,
-                  left: 16,
-                  zIndex: 4,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  background:
-                    item.tag === "LIVE" || item.tag === "BIDDING"
-                      ? "rgba(220,38,38,0.85)"
-                      : "rgba(208,122,42,0.85)",
-                  backdropFilter: "blur(6px)",
-                  borderRadius: 6,
-                  padding: "3px 10px",
-                }}
-              >
-                {(item.tag === "LIVE" || item.tag === "BIDDING") && (
-                  <span
-                    style={{
-                      display: "inline-block",
-                      width: 7,
-                      height: 7,
-                      borderRadius: "50%",
-                      background: "#fff",
-                      animation: "liveBlink 1s ease-in-out infinite",
-                    }}
-                  />
-                )}
-                <span
-                  style={{
-                    color: "#fff",
-                    fontSize: 10,
-                    fontWeight: 800,
-                    letterSpacing: "0.1em",
-                  }}
-                >
-                  {item.tag}
-                </span>
-              </div>
-
-              {/* Centered overlay heading */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  zIndex: 4,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingTop: 24,
-                  paddingBottom: 0,
-                  textAlign: "center",
-                }}
-              >
-                <h3
-                  style={{
-                    color: "#fff",
-                    fontWeight: 800,
-                    fontSize: "clamp(1rem, 2vw, 1.35rem)",
-                    fontFamily: "'Playfair Display', serif",
-                    letterSpacing: "0.02em",
-                    textShadow: "0 2px 12px rgba(0,0,0,0.7)",
-                    textAlign: "center",
-                    marginTop: 8,
-                  }}
-                >
-                  {item.heading}
-                </h3>
-              </div>
-
-              {/* Bottom: bid indicator */}
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: 18,
-                  left: 0,
-                  right: 0,
-                  zIndex: 4,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 6,
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => navigate("/auctions")}
-                  style={{
-                    background: "linear-gradient(135deg, #D07A2A, #F5A623)",
-                    color: "#fff",
-                    fontWeight: 700,
-                    fontSize: 13,
-                    borderRadius: 24,
-                    padding: "7px 22px",
-                    border: "none",
-                    cursor: "pointer",
-                    boxShadow: "0 2px 16px rgba(208,122,42,0.5)",
-                    letterSpacing: "0.04em",
-                    animation: "pulseGlow 2.5s ease-in-out infinite",
-                    animationDelay: `${i * 0.4}s`,
-                  }}
-                  data-ocid={`auction.primary_button.${i + 1}`}
-                >
-                  Place Bid
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Bottom accent */}
+        {/* Subtle top accent line */}
         <div
           style={{
             height: 3,
             background:
-              "linear-gradient(90deg, transparent, #5A8A2E, #D07A2A, #5A8A2E, transparent)",
+              "linear-gradient(90deg, transparent, #D07A2A, #F5A623, #D07A2A, transparent)",
           }}
         />
-      </div>
-    </section>
+
+        <div ref={ref} className="relative z-10">
+          {/* Section heading */}
+          <div className="text-center pt-10 md:pt-16 pb-6 md:pb-10 px-4">
+            <div className="auction-heading inline-flex items-center gap-3 mb-5">
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-full bg-red-500"
+                style={{ animation: "liveBlink 1.2s ease-in-out infinite" }}
+              />
+              <span
+                className="text-xs font-bold tracking-widest uppercase"
+                style={{ color: "#F5A623" }}
+              >
+                Live Now
+              </span>
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-full bg-red-500"
+                style={{
+                  animation: "liveBlink 1.2s ease-in-out infinite 0.6s",
+                }}
+              />
+            </div>
+            <h2
+              className="auction-heading text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight"
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                textShadow: "0 2px 30px rgba(245,166,35,0.2)",
+              }}
+            >
+              Live{" "}
+              <span
+                style={{
+                  background:
+                    "linear-gradient(90deg, #D07A2A, #F5A623, #FFD700)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                Auctions
+              </span>
+            </h2>
+            <p className="auction-subtitle text-gray-400 text-sm md:text-lg mt-4 max-w-xl mx-auto px-4">
+              Watch real-time livestock auctions. Bid on premium cattle, goats,
+              and more — directly from verified farms across Pakistan.
+            </p>
+          </div>
+
+          {/* 4 tall video containers — flush, no gap, no border */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
+            {AUCTION_ITEMS.map((item, i) => (
+              <div
+                key={item.id}
+                className={`auction-card-${i + 1} relative overflow-hidden w-full`}
+                style={{ minHeight: "clamp(280px, 45vw, 520px)" }}
+                data-ocid={`auction.item.${i + 1}`}
+              >
+                {/* YouTube embed fills the full container */}
+                <iframe
+                  src={`https://www.youtube.com/embed/${item.id}?autoplay=1&mute=1&loop=1&playlist=${item.id}&controls=0&rel=0&showinfo=0&modestbranding=1`}
+                  title={item.heading}
+                  allow="autoplay; encrypted-media"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    border: "none",
+                    // Scale up slightly to hide letterbox bars
+                    transform: "scale(1.05)",
+                    objectFit: "cover",
+                  }}
+                />
+
+                {/* Scanline overlay for cinematic feel */}
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "repeating-linear-gradient(0deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 1px, transparent 1px, transparent 3px)",
+                    pointerEvents: "none",
+                    zIndex: 2,
+                  }}
+                />
+
+                {/* Dark gradient at top for text legibility */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: "55%",
+                    background:
+                      "linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 100%)",
+                    zIndex: 3,
+                    pointerEvents: "none",
+                  }}
+                />
+
+                {/* Dark gradient at bottom */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: "40%",
+                    background:
+                      "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)",
+                    zIndex: 3,
+                    pointerEvents: "none",
+                  }}
+                />
+
+                {/* Tag badge (top-left) */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 16,
+                    left: 16,
+                    zIndex: 4,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    background:
+                      item.tag === "LIVE" || item.tag === "BIDDING"
+                        ? "rgba(220,38,38,0.85)"
+                        : "rgba(208,122,42,0.85)",
+                    backdropFilter: "blur(6px)",
+                    borderRadius: 6,
+                    padding: "3px 10px",
+                  }}
+                >
+                  {(item.tag === "LIVE" || item.tag === "BIDDING") && (
+                    <span
+                      style={{
+                        display: "inline-block",
+                        width: 7,
+                        height: 7,
+                        borderRadius: "50%",
+                        background: "#fff",
+                        animation: "liveBlink 1s ease-in-out infinite",
+                      }}
+                    />
+                  )}
+                  <span
+                    style={{
+                      color: "#fff",
+                      fontSize: 10,
+                      fontWeight: 800,
+                      letterSpacing: "0.1em",
+                    }}
+                  >
+                    {item.tag}
+                  </span>
+                </div>
+
+                {/* Centered overlay heading */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 4,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingTop: 24,
+                    paddingBottom: 0,
+                    textAlign: "center",
+                  }}
+                >
+                  <h3
+                    style={{
+                      color: "#fff",
+                      fontWeight: 800,
+                      fontSize: "clamp(1rem, 2vw, 1.35rem)",
+                      fontFamily: "'Playfair Display', serif",
+                      letterSpacing: "0.02em",
+                      textShadow: "0 2px 12px rgba(0,0,0,0.7)",
+                      textAlign: "center",
+                      marginTop: 8,
+                    }}
+                  >
+                    {item.heading}
+                  </h3>
+                </div>
+
+                {/* Bottom: bid indicator */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 18,
+                    left: 0,
+                    right: 0,
+                    zIndex: 4,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => navigate("/auctions")}
+                    style={{
+                      background: "linear-gradient(135deg, #D07A2A, #F5A623)",
+                      color: "#fff",
+                      fontWeight: 700,
+                      fontSize: 13,
+                      borderRadius: 24,
+                      padding: "7px 22px",
+                      border: "none",
+                      cursor: "pointer",
+                      boxShadow: "0 2px 16px rgba(208,122,42,0.5)",
+                      letterSpacing: "0.04em",
+                      animation: "pulseGlow 2.5s ease-in-out infinite",
+                      animationDelay: `${i * 0.4}s`,
+                    }}
+                    data-ocid={`auction.primary_button.${i + 1}`}
+                  >
+                    Place Bid
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom accent */}
+          <div
+            style={{
+              height: 3,
+              background:
+                "linear-gradient(90deg, transparent, #5A8A2E, #D07A2A, #5A8A2E, transparent)",
+            }}
+          />
+        </div>
+      </section>
+    </>
   );
 }
 
@@ -1793,48 +1821,112 @@ function WhoWeAreSection() {
       >
         <path
           d="M-50,300 Q100,180 250,300 T550,300 T850,300"
+          style={{
+            animationName: "waveFloat01",
+            animationDuration: "4s",
+            animationIterationCount: "infinite",
+            animationTimingFunction: "ease-in-out",
+            animationFillMode: "both",
+            animationDelay: "0s",
+          }}
           stroke="#C8830A"
           strokeWidth="1.5"
           fill="none"
         />
         <path
           d="M-50,340 Q100,220 250,340 T550,340 T850,340"
+          style={{
+            animationName: "waveFloat01",
+            animationDuration: "4s",
+            animationIterationCount: "infinite",
+            animationTimingFunction: "ease-in-out",
+            animationFillMode: "both",
+            animationDelay: "0.4s",
+          }}
           stroke="#C8830A"
           strokeWidth="1.5"
           fill="none"
         />
         <path
           d="M-50,380 Q100,260 250,380 T550,380 T850,380"
+          style={{
+            animationName: "waveFloat01",
+            animationDuration: "4s",
+            animationIterationCount: "infinite",
+            animationTimingFunction: "ease-in-out",
+            animationFillMode: "both",
+            animationDelay: "0.8s",
+          }}
           stroke="#C8830A"
           strokeWidth="1.5"
           fill="none"
         />
         <path
           d="M-50,260 Q100,140 250,260 T550,260 T850,260"
+          style={{
+            animationName: "waveFloat01",
+            animationDuration: "4s",
+            animationIterationCount: "infinite",
+            animationTimingFunction: "ease-in-out",
+            animationFillMode: "both",
+            animationDelay: "1.2s",
+          }}
           stroke="#1B5E3B"
           strokeWidth="1"
           fill="none"
         />
         <path
           d="M-50,220 Q100,100 250,220 T550,220 T850,220"
+          style={{
+            animationName: "waveFloat01",
+            animationDuration: "4s",
+            animationIterationCount: "infinite",
+            animationTimingFunction: "ease-in-out",
+            animationFillMode: "both",
+            animationDelay: "1.6s",
+          }}
           stroke="#1B5E3B"
           strokeWidth="1"
           fill="none"
         />
         <path
           d="M-50,420 Q100,300 250,420 T550,420 T850,420"
+          style={{
+            animationName: "waveFloat01",
+            animationDuration: "4s",
+            animationIterationCount: "infinite",
+            animationTimingFunction: "ease-in-out",
+            animationFillMode: "both",
+            animationDelay: "2s",
+          }}
           stroke="#C8830A"
           strokeWidth="1"
           fill="none"
         />
         <path
           d="M-50,460 Q100,340 250,460 T550,460 T850,460"
+          style={{
+            animationName: "waveFloat01",
+            animationDuration: "4s",
+            animationIterationCount: "infinite",
+            animationTimingFunction: "ease-in-out",
+            animationFillMode: "both",
+            animationDelay: "2.4s",
+          }}
           stroke="#C8830A"
           strokeWidth="0.8"
           fill="none"
         />
         <path
           d="M-50,180 Q100,60 250,180 T550,180 T850,180"
+          style={{
+            animationName: "waveFloat01",
+            animationDuration: "4s",
+            animationIterationCount: "infinite",
+            animationTimingFunction: "ease-in-out",
+            animationFillMode: "both",
+            animationDelay: "2.8s",
+          }}
           stroke="#1B5E3B"
           strokeWidth="0.8"
           fill="none"
@@ -1869,7 +1961,7 @@ function WhoWeAreSection() {
           width: "clamp(200px,40vw,420px)",
           opacity: 0.08,
         }}
-        viewBox="0 0 420 120"
+        viewBox="0 0 560 120"
         preserveAspectRatio="xMaxYMax meet"
       >
         {/* Cow 1 */}
@@ -1931,6 +2023,71 @@ function WhoWeAreSection() {
         <rect x="395" y="99" width="5" height="16" rx="2" fill="#7A4B20" />
         <rect x="404" y="99" width="5" height="15" rx="2" fill="#7A4B20" />
         <ellipse cx="412" cy="83" rx="13" ry="9" fill="#7A4B20" />
+        {/* Cow 5 */}
+        <ellipse cx="450" cy="84" rx="26" ry="16" fill="#5A3010" />
+        <rect x="436" y="97" width="5" height="17" rx="2" fill="#5A3010" />
+        <rect x="445" y="97" width="5" height="19" rx="2" fill="#5A3010" />
+        <rect x="455" y="97" width="5" height="19" rx="2" fill="#5A3010" />
+        <rect x="464" y="97" width="5" height="17" rx="2" fill="#5A3010" />
+        <ellipse cx="476" cy="79" rx="14" ry="10" fill="#5A3010" />
+        <path
+          d="M479,69 Q483,62 485,67"
+          stroke="#5A3010"
+          strokeWidth="2"
+          fill="none"
+        />
+        <path
+          d="M473,69 Q469,62 467,67"
+          stroke="#5A3010"
+          strokeWidth="2"
+          fill="none"
+        />
+        {/* Cow 6 */}
+        <ellipse cx="520" cy="86" rx="24" ry="15" fill="#7A5030" />
+        <rect x="507" y="98" width="5" height="16" rx="2" fill="#7A5030" />
+        <rect x="516" y="98" width="5" height="18" rx="2" fill="#7A5030" />
+        <rect x="526" y="98" width="5" height="18" rx="2" fill="#7A5030" />
+        <rect x="535" y="98" width="5" height="16" rx="2" fill="#7A5030" />
+        <ellipse cx="544" cy="81" rx="13" ry="9" fill="#7A5030" />
+        {/* Shepherd person */}
+        <circle cx="130" cy="45" r="8" fill="#4A2800" />
+        <rect x="126" y="53" width="8" height="22" rx="2" fill="#4A2800" />
+        <line
+          x1="126"
+          y1="60"
+          x2="112"
+          y2="68"
+          stroke="#4A2800"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        <line
+          x1="134"
+          y1="60"
+          x2="148"
+          y2="68"
+          stroke="#4A2800"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        <rect x="124" y="75" width="5" height="18" rx="2" fill="#4A2800" />
+        <rect x="131" y="75" width="5" height="18" rx="2" fill="#4A2800" />
+        {/* Shepherd staff */}
+        <line
+          x1="148"
+          y1="68"
+          x2="152"
+          y2="100"
+          stroke="#4A2800"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M152,100 Q157,95 155,90"
+          stroke="#4A2800"
+          strokeWidth="2"
+          fill="none"
+        />
       </svg>
       {/* Top accent border */}
       <div
@@ -2364,6 +2521,138 @@ function WhoWeAreSection() {
           )}
         </div>
       </div>
+      {/* Heavy labour figure - bottom right */}
+      <svg
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          right: 0,
+          width: "clamp(130px,22vw,220px)",
+          opacity: 0.13,
+        }}
+        viewBox="0 0 220 200"
+      >
+        <circle cx="80" cy="60" r="16" fill="#0E5163" />
+        <path
+          d="M80,76 Q70,100 55,115"
+          stroke="#0E5163"
+          strokeWidth="10"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <path
+          d="M70,90 Q45,95 35,105"
+          stroke="#0E5163"
+          strokeWidth="7"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <path
+          d="M68,88 Q55,80 50,85"
+          stroke="#0E5163"
+          strokeWidth="6"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <path
+          d="M55,115 Q48,140 42,165"
+          stroke="#0E5163"
+          strokeWidth="9"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <path
+          d="M55,115 Q65,140 68,165"
+          stroke="#0E5163"
+          strokeWidth="9"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <ellipse cx="100" cy="88" rx="35" ry="28" fill="#D4880C" />
+        <path
+          d="M68,76 Q90,68 118,80"
+          stroke="#D4880C"
+          strokeWidth="3"
+          fill="none"
+        />
+        <line
+          x1="80"
+          y1="80"
+          x2="118"
+          y2="92"
+          stroke="#B8720A"
+          strokeWidth="1.5"
+        />
+        <line
+          x1="75"
+          y1="90"
+          x2="115"
+          y2="100"
+          stroke="#B8720A"
+          strokeWidth="1.5"
+        />
+        <ellipse
+          cx="60"
+          cy="45"
+          rx="3"
+          ry="5"
+          fill="#0E5163"
+          style={{
+            animation: "sweatDrop 1.8s ease-in infinite",
+            animationDelay: "0s",
+          }}
+        />
+        <ellipse
+          cx="48"
+          cy="55"
+          rx="2.5"
+          ry="4"
+          fill="#0E5163"
+          style={{
+            animation: "sweatDrop 1.8s ease-in infinite",
+            animationDelay: "0.6s",
+          }}
+        />
+        <ellipse
+          cx="55"
+          cy="38"
+          rx="2"
+          ry="3.5"
+          fill="#0E5163"
+          style={{
+            animation: "sweatDrop 2.2s ease-in infinite",
+            animationDelay: "1.1s",
+          }}
+        />
+        <line
+          x1="30"
+          y1="70"
+          x2="20"
+          y2="65"
+          stroke="#0E5163"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <line
+          x1="28"
+          y1="78"
+          x2="16"
+          y2="76"
+          stroke="#0E5163"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <line
+          x1="32"
+          y1="62"
+          x2="22"
+          y2="55"
+          stroke="#0E5163"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
       <div
         style={{
           position: "absolute",
@@ -2713,6 +3002,101 @@ function WhoWeAreSection() {
           )}
         </div>
       </div>
+      {/* Handshake / earnings concept */}
+      <svg
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          bottom: "8%",
+          right: "5%",
+          width: "clamp(100px,20vw,200px)",
+          opacity: 0.11,
+        }}
+        viewBox="0 0 200 140"
+      >
+        <path
+          d="M10,70 Q30,55 50,65 Q60,70 65,75"
+          stroke="#C0541B"
+          strokeWidth="8"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <path
+          d="M190,70 Q170,55 150,65 Q140,70 135,75"
+          stroke="#8B7D2A"
+          strokeWidth="8"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <ellipse
+          cx="100"
+          cy="72"
+          rx="38"
+          ry="22"
+          fill="#C0541B"
+          opacity="0.8"
+        />
+        <path
+          d="M62,72 Q80,58 100,60 Q120,58 138,72"
+          stroke="#8B7D2A"
+          strokeWidth="5"
+          fill="none"
+        />
+        <path
+          d="M62,72 Q80,86 100,84 Q120,86 138,72"
+          stroke="#8B7D2A"
+          strokeWidth="5"
+          fill="none"
+        />
+        <circle cx="80" cy="35" r="14" fill="#D4A017" />
+        <text
+          x="80"
+          y="40"
+          textAnchor="middle"
+          fontSize="13"
+          fill="white"
+          fontWeight="900"
+        >
+          ₨
+        </text>
+        <circle cx="120" cy="35" r="14" fill="#D4A017" />
+        <text
+          x="120"
+          y="40"
+          textAnchor="middle"
+          fontSize="13"
+          fill="white"
+          fontWeight="900"
+        >
+          ₨
+        </text>
+        <path
+          d="M92,28 L108,28"
+          stroke="#C0541B"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M108,42 L92,42"
+          stroke="#8B7D2A"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        <line
+          x1="100"
+          y1="18"
+          x2="100"
+          y2="8"
+          stroke="#D4A017"
+          strokeWidth="2"
+        />
+        <path
+          d="M96,10 L100,4 L104,10"
+          stroke="#D4A017"
+          strokeWidth="2"
+          fill="none"
+        />
+      </svg>
       <div
         style={{
           position: "absolute",
@@ -2790,33 +3174,52 @@ function WhoWeAreSection() {
         <circle
           cx="150"
           cy="150"
-          r="75"
-          stroke="#D4A017"
-          strokeWidth="2"
-          fill="none"
-          strokeDasharray="8 6"
-        />
-        <circle
-          cx="150"
-          cy="150"
           r="50"
           stroke="#2D6A2F"
           strokeWidth="2"
           fill="none"
         />
-        {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(
-          (angle) => (
-            <line
-              key={angle}
-              x1={150 + 108 * Math.cos((angle * Math.PI) / 180)}
-              y1={150 + 108 * Math.sin((angle * Math.PI) / 180)}
-              x2={150 + 120 * Math.cos((angle * Math.PI) / 180)}
-              y2={150 + 120 * Math.sin((angle * Math.PI) / 180)}
-              stroke="#D4A017"
-              strokeWidth="2"
-            />
-          ),
-        )}
+        <circle
+          cx="150"
+          cy="150"
+          r="115"
+          fill="#D4A017"
+          opacity="0.06"
+          style={{ animation: "sunPulse 3s ease-in-out infinite" }}
+        />
+        <g
+          style={{
+            transformOrigin: "150px 150px",
+            animation: "sunRotate 20s linear infinite",
+          }}
+        >
+          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(
+            (angle) => (
+              <line
+                key={angle}
+                x1={150 + 108 * Math.cos((angle * Math.PI) / 180)}
+                y1={150 + 108 * Math.sin((angle * Math.PI) / 180)}
+                x2={150 + 120 * Math.cos((angle * Math.PI) / 180)}
+                y2={150 + 120 * Math.sin((angle * Math.PI) / 180)}
+                stroke="#D4A017"
+                strokeWidth="2"
+              />
+            ),
+          )}
+        </g>
+        <circle
+          cx="150"
+          cy="150"
+          r="75"
+          stroke="#D4A017"
+          strokeWidth="2"
+          fill="none"
+          strokeDasharray="8 6"
+          style={{
+            transformOrigin: "150px 150px",
+            animation: "sunRotate 35s linear infinite reverse",
+          }}
+        />
       </svg>
       {/* Cattle herd panorama bottom */}
       <svg
@@ -3269,6 +3672,75 @@ function WhoWeAreSection() {
           fill="none"
         />
       </svg>
+      {/* Qurbani stall scene - top right */}
+      <svg
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: "8%",
+          right: "3%",
+          width: "clamp(110px,22vw,230px)",
+          opacity: 0.1,
+        }}
+        viewBox="0 0 230 200"
+      >
+        <rect
+          x="10"
+          y="50"
+          width="210"
+          height="130"
+          rx="2"
+          stroke="#8B5E3C"
+          strokeWidth="3"
+          fill="none"
+        />
+        <rect x="10" y="40" width="210" height="14" rx="2" fill="#8B5E3C" />
+        <rect x="10" y="40" width="10" height="140" fill="#7A4E2C" />
+        <rect x="210" y="40" width="10" height="140" fill="#7A4E2C" />
+        <rect x="110" y="40" width="8" height="140" fill="#7A4E2C" />
+        <path
+          d="M60,54 Q58,80 60,110"
+          stroke="#6B4226"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <circle cx="60" cy="114" r="5" fill="#6B4226" />
+        <path
+          d="M160,54 Q158,80 160,110"
+          stroke="#6B4226"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <circle cx="160" cy="114" r="5" fill="#6B4226" />
+        <path
+          d="M30,70 L30,100 Q30,106 36,106 L50,106 Q58,106 58,100 L58,70 Q58,64 50,64 L36,64 Q30,64 30,70 Z"
+          fill="#9B7050"
+        />
+        <rect x="38" y="106" width="8" height="16" rx="2" fill="#6B4226" />
+        <path d="M34,68 L54,68" stroke="#7A5040" strokeWidth="1" />
+        <path
+          d="M175,68 Q180,60 185,68 L188,100 Q188,106 182,106 L177,106 Q170,106 170,100 Z"
+          fill="#9B7050"
+        />
+        <rect x="175" y="106" width="8" height="14" rx="2" fill="#6B4226" />
+        <rect
+          x="10"
+          y="168"
+          width="210"
+          height="12"
+          rx="2"
+          fill="#8B5E3C"
+          opacity="0.5"
+        />
+        <path
+          d="M20,170 Q40,165 60,170 Q80,175 100,170 Q120,165 140,170 Q160,175 180,170 Q200,165 215,170"
+          stroke="#6EA832"
+          strokeWidth="2"
+          fill="none"
+        />
+      </svg>
       {/* Top accent */}
       <div
         style={{
@@ -3487,77 +3959,84 @@ function WhoWeAreSection() {
           viewBox="0 0 420 420"
           style={{ width: "100%", height: "100%", opacity: 0.18 }}
         >
-          {/* Orbit rings */}
-          <circle
-            cx="210"
-            cy="210"
-            r="160"
-            stroke="#1B5E3B"
-            strokeWidth="1"
-            fill="none"
-            strokeDasharray="6 4"
-          />
-          <circle
-            cx="210"
-            cy="210"
-            r="110"
-            stroke="#1B5E3B"
-            strokeWidth="1.5"
-            fill="none"
-            strokeDasharray="4 6"
-          />
-          <circle
-            cx="210"
-            cy="210"
-            r="60"
-            stroke="#C8830A"
-            strokeWidth="2"
-            fill="none"
-          />
-          {/* Center M */}
-          <circle cx="210" cy="210" r="36" fill="#1B5E3B" />
-          <text
-            x="210"
-            y="218"
-            textAnchor="middle"
-            fill="white"
-            fontSize="28"
-            fontWeight="900"
-            fontFamily="serif"
+          <g
+            style={{
+              transformOrigin: "210px 210px",
+              animation: "orbitRotate 30s linear infinite",
+            }}
           >
-            م
-          </text>
-          {/* Role nodes on outer orbit */}
-          {[
-            { angle: 270, label: "Buyer", color: "#0E5163", icon: "🛒" },
-            { angle: 342, label: "Seller", color: "#C0541B", icon: "💰" },
-            { angle: 54, label: "Farmer", color: "#2D6A2F", icon: "🌾" },
-            { angle: 126, label: "Provider", color: "#8B5E3C", icon: "📦" },
-            { angle: 198, label: "Mandi", color: "#C8830A", icon: "🏪" },
-          ].map(({ angle, color, icon }) => {
-            const rad = ((angle - 90) * Math.PI) / 180;
-            const cx2 = 210 + 160 * Math.cos(rad);
-            const cy2 = 210 + 160 * Math.sin(rad);
-            const ix = 210 + 75 * Math.cos(rad);
-            const iy = 210 + 75 * Math.sin(rad);
-            return (
-              <g key={angle}>
-                <line
-                  x1={cx2}
-                  y1={cy2}
-                  x2={ix}
-                  y2={iy}
-                  stroke={color}
-                  strokeWidth="1.5"
-                  strokeDasharray="3 3"
-                />
-                <circle cx={cx2} cy={cy2} r="22" fill={color} />
-                <text x={cx2} y={cy2 + 6} textAnchor="middle" fontSize="16">
-                  {icon}
-                </text>
-              </g>
-            );
-          })}
+            {/* Orbit rings */}
+            <circle
+              cx="210"
+              cy="210"
+              r="160"
+              stroke="#1B5E3B"
+              strokeWidth="1"
+              fill="none"
+              strokeDasharray="6 4"
+            />
+            <circle
+              cx="210"
+              cy="210"
+              r="110"
+              stroke="#1B5E3B"
+              strokeWidth="1.5"
+              fill="none"
+              strokeDasharray="4 6"
+            />
+            <circle
+              cx="210"
+              cy="210"
+              r="60"
+              stroke="#C8830A"
+              strokeWidth="2"
+              fill="none"
+            />
+            {/* Center M */}
+            <circle cx="210" cy="210" r="36" fill="#1B5E3B" />
+            <text
+              x="210"
+              y="218"
+              textAnchor="middle"
+              fill="white"
+              fontSize="28"
+              fontWeight="900"
+              fontFamily="serif"
+            >
+              م
+            </text>
+            {/* Role nodes on outer orbit */}
+            {[
+              { angle: 270, label: "Buyer", color: "#0E5163", icon: "🛒" },
+              { angle: 342, label: "Seller", color: "#C0541B", icon: "💰" },
+              { angle: 54, label: "Farmer", color: "#2D6A2F", icon: "🌾" },
+              { angle: 126, label: "Provider", color: "#8B5E3C", icon: "📦" },
+              { angle: 198, label: "Mandi", color: "#C8830A", icon: "🏪" },
+            ].map(({ angle, color, icon }) => {
+              const rad = ((angle - 90) * Math.PI) / 180;
+              const cx2 = 210 + 160 * Math.cos(rad);
+              const cy2 = 210 + 160 * Math.sin(rad);
+              const ix = 210 + 75 * Math.cos(rad);
+              const iy = 210 + 75 * Math.sin(rad);
+              return (
+                <g key={angle}>
+                  <line
+                    x1={cx2}
+                    y1={cy2}
+                    x2={ix}
+                    y2={iy}
+                    stroke={color}
+                    strokeWidth="1.5"
+                    strokeDasharray="3 3"
+                  />
+                  <circle cx={cx2} cy={cy2} r="22" fill={color} />
+                  <text x={cx2} y={cy2 + 6} textAnchor="middle" fontSize="16">
+                    {icon}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
         </svg>
       </div>
       {/* Top accent */}
@@ -3838,22 +4317,6 @@ function WhoWeAreSection() {
           </div>
         </div>
       </div>
-
-      {/* Wavy divider */}
-      <div className="w-full overflow-hidden" style={{ lineHeight: 0 }}>
-        <svg
-          viewBox="0 0 1440 60"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="none"
-          className="w-full h-[60px]"
-        >
-          <path
-            d="M0,30 C240,60 480,0 720,30 C960,60 1200,0 1440,30 L1440,60 L0,60 Z"
-            fill="#173B2A"
-          />
-        </svg>
-      </div>
     </>
   );
 }
@@ -3975,6 +4438,18 @@ export default function Landing() {
   return (
     <div className="min-h-screen">
       <style>{`
+        @keyframes waveShift1 {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes waveShift2 {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(50%); }
+        }
+        @keyframes waveShift3 {
+          0% { transform: translateX(-50%); }
+          100% { transform: translateX(0%); }
+        }
         @keyframes heartbeat {
           0%, 100% { transform: scale(1); }
           14% { transform: scale(1.04); }
@@ -4281,8 +4756,133 @@ export default function Landing() {
       {/* ── Who We Are – Stacking Cards ── */}
       <WhoWeAreSection />
 
+      {/* Wave divider 1: VALUE_PROPS (#E7F4EA) → Stats bar (#173B2A) */}
+      <div
+        style={{
+          display: "none",
+          position: "relative",
+          zIndex: 10,
+          marginTop: 0,
+          height: 90,
+          overflow: "hidden",
+          pointerEvents: "none" as const,
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "200%",
+            height: "100%",
+            animation: "waveShift3 18s linear infinite",
+          }}
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 1440 90"
+            preserveAspectRatio="none"
+            style={{ width: "50%", height: "100%", float: "left" as const }}
+          >
+            <path
+              d="M0,45 C180,90 360,0 540,45 C720,90 900,0 1080,45 C1260,90 1440,0 1440,45 L1440,90 L0,90 Z"
+              fill="#E7F4EA"
+              fillOpacity="0.35"
+            />
+          </svg>
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 1440 90"
+            preserveAspectRatio="none"
+            style={{ width: "50%", height: "100%", float: "left" as const }}
+          >
+            <path
+              d="M0,45 C180,90 360,0 540,45 C720,90 900,0 1080,45 C1260,90 1440,0 1440,45 L1440,90 L0,90 Z"
+              fill="#E7F4EA"
+              fillOpacity="0.35"
+            />
+          </svg>
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "200%",
+            height: "100%",
+            animation: "waveShift2 12s linear infinite",
+          }}
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 1440 90"
+            preserveAspectRatio="none"
+            style={{ width: "50%", height: "100%", float: "left" as const }}
+          >
+            <path
+              d="M0,55 C200,10 400,80 600,40 C800,0 1000,70 1200,35 C1320,15 1440,55 1440,55 L1440,90 L0,90 Z"
+              fill="#E7F4EA"
+              fillOpacity="0.55"
+            />
+          </svg>
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 1440 90"
+            preserveAspectRatio="none"
+            style={{ width: "50%", height: "100%", float: "left" as const }}
+          >
+            <path
+              d="M0,55 C200,10 400,80 600,40 C800,0 1000,70 1200,35 C1320,15 1440,55 1440,55 L1440,90 L0,90 Z"
+              fill="#E7F4EA"
+              fillOpacity="0.55"
+            />
+          </svg>
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "200%",
+            height: "100%",
+            animation: "waveShift1 8s linear infinite",
+          }}
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 1440 90"
+            preserveAspectRatio="none"
+            style={{ width: "50%", height: "100%", float: "left" as const }}
+          >
+            <path
+              d="M0,60 C160,20 320,80 480,45 C640,10 800,75 960,45 C1120,15 1280,70 1440,50 L1440,90 L0,90 Z"
+              fill="#E7F4EA"
+            />
+          </svg>
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 1440 90"
+            preserveAspectRatio="none"
+            style={{ width: "50%", height: "100%", float: "left" as const }}
+          >
+            <path
+              d="M0,60 C160,20 320,80 480,45 C640,10 800,75 960,45 C1120,15 1280,70 1440,50 L1440,90 L0,90 Z"
+              fill="#E7F4EA"
+            />
+          </svg>
+        </div>
+      </div>
       {/* Stats bar */}
-      <div className="bg-[#173B2A] py-8">
+      <div
+        className="bg-[#173B2A]"
+        style={{
+          marginTop: -90,
+          paddingTop: "2.5rem",
+          paddingBottom: "2rem",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {STATS.map(({ value, label }) => (
@@ -4297,8 +4897,126 @@ export default function Landing() {
         </div>
       </div>
 
+      {/* Wave divider 2: Stats bar (#173B2A) → Featured Livestock (#0A1A0F) */}
+      <div
+        style={{
+          display: "none",
+          position: "relative",
+          zIndex: 10,
+          marginTop: 0,
+          height: 90,
+          overflow: "hidden",
+          pointerEvents: "none" as const,
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "200%",
+            height: "100%",
+            animation: "waveShift3 20s linear infinite",
+          }}
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 1440 90"
+            preserveAspectRatio="none"
+            style={{ width: "50%", height: "100%", float: "left" as const }}
+          >
+            <path
+              d="M0,45 C180,90 360,0 540,45 C720,90 900,0 1080,45 C1260,90 1440,0 1440,45 L1440,90 L0,90 Z"
+              fill="#173B2A"
+              fillOpacity="0.4"
+            />
+          </svg>
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 1440 90"
+            preserveAspectRatio="none"
+            style={{ width: "50%", height: "100%", float: "left" as const }}
+          >
+            <path
+              d="M0,45 C180,90 360,0 540,45 C720,90 900,0 1080,45 C1260,90 1440,0 1440,45 L1440,90 L0,90 Z"
+              fill="#173B2A"
+              fillOpacity="0.4"
+            />
+          </svg>
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "200%",
+            height: "100%",
+            animation: "waveShift2 13s linear infinite",
+          }}
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 1440 90"
+            preserveAspectRatio="none"
+            style={{ width: "50%", height: "100%", float: "left" as const }}
+          >
+            <path
+              d="M0,55 C200,10 400,80 600,40 C800,0 1000,70 1200,35 C1320,15 1440,55 1440,55 L1440,90 L0,90 Z"
+              fill="#173B2A"
+              fillOpacity="0.65"
+            />
+          </svg>
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 1440 90"
+            preserveAspectRatio="none"
+            style={{ width: "50%", height: "100%", float: "left" as const }}
+          >
+            <path
+              d="M0,55 C200,10 400,80 600,40 C800,0 1000,70 1200,35 C1320,15 1440,55 1440,55 L1440,90 L0,90 Z"
+              fill="#173B2A"
+              fillOpacity="0.65"
+            />
+          </svg>
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "200%",
+            height: "100%",
+            animation: "waveShift1 9s linear infinite",
+          }}
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 1440 90"
+            preserveAspectRatio="none"
+            style={{ width: "50%", height: "100%", float: "left" as const }}
+          >
+            <path
+              d="M0,60 C160,20 320,80 480,45 C640,10 800,75 960,45 C1120,15 1280,70 1440,50 L1440,90 L0,90 Z"
+              fill="#173B2A"
+            />
+          </svg>
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 1440 90"
+            preserveAspectRatio="none"
+            style={{ width: "50%", height: "100%", float: "left" as const }}
+          >
+            <path
+              d="M0,60 C160,20 320,80 480,45 C640,10 800,75 960,45 C1120,15 1280,70 1440,50 L1440,90 L0,90 Z"
+              fill="#173B2A"
+            />
+          </svg>
+        </div>
+      </div>
       {/* Featured Listings */}
-      <FeaturedLivestockSlider />
+      <div style={{ position: "relative", zIndex: 1, marginTop: -90 }}>
+        <FeaturedLivestockSlider />
+      </div>
 
       {/* How It Works */}
       <div className="py-10 md:py-16 bg-white">
