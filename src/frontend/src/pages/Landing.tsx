@@ -1090,13 +1090,16 @@ function AuctionSection() {
 
 function JourneySection() {
   const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [traderCount, setTraderCount] = useState(12000);
+  const [animalCount, setAnimalCount] = useState(49000);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
-            entry.target.classList.add("journey-visible");
+            setIsVisible(true);
           }
         }
       },
@@ -1109,12 +1112,40 @@ function JourneySection() {
     };
   }, []);
 
+  // Animate counters when visible
+  useEffect(() => {
+    if (!isVisible) return;
+    const target1 = 12847;
+    const target2 = 50423;
+    const duration = 1800;
+    const steps = 60;
+    const interval = duration / steps;
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      const progress = step / steps;
+      const ease = 1 - (1 - progress) ** 3;
+      setTraderCount(Math.round(12000 + (target1 - 12000) * ease));
+      setAnimalCount(Math.round(49000 + (target2 - 49000) * ease));
+      if (step >= steps) clearInterval(timer);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [isVisible]);
+
+  const particles = Array.from({ length: 18 }, (_, i) => ({
+    id: i,
+    left: `${5 + ((i * 5.5) % 90)}%`,
+    delay: `${(i * 0.4) % 4}s`,
+    duration: `${5 + ((i * 0.7) % 5)}s`,
+    size: i % 3 === 0 ? 5 : i % 3 === 1 ? 3 : 4,
+  }));
+
   return (
     <section
-      className="relative overflow-hidden py-20 px-4"
+      className="relative overflow-hidden py-24 px-4"
       style={{
         background:
-          "linear-gradient(135deg, #0F2C1F 0%, #173B2A 60%, #0F2C1F 100%)",
+          "linear-gradient(160deg, #FDFAF4 0%, #F5F0E4 40%, #EEF6EC 100%)",
       }}
     >
       <style>{`
@@ -1126,38 +1157,91 @@ function JourneySection() {
           0%, 100% { transform: translate(0,0) scale(1); }
           50% { transform: translate(-20px, 25px) scale(0.95); }
         }
-        @keyframes shimmerText {
+        @keyframes shimmerTextLight {
           0% { background-position: -200% center; }
           100% { background-position: 200% center; }
+        }
+        @keyframes journeyFadeUp {
+          0% { opacity: 0; transform: translateY(40px) scale(0.97); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes pillSlideUp {
           0% { opacity: 0; transform: translateY(30px); }
           100% { opacity: 1; transform: translateY(0); }
         }
-        @keyframes journeyFadeUp {
-          0% { opacity: 0; transform: translateY(40px); }
-          100% { opacity: 1; transform: translateY(0); }
+        @keyframes particleDrift {
+          0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+          10% { opacity: 0.7; }
+          90% { opacity: 0.5; }
+          100% { transform: translateY(-120px) translateX(12px); opacity: 0; }
         }
-        .journey-visible .journey-animate { animation: journeyFadeUp 0.7s ease forwards; }
-        .journey-visible .pill-1 { animation: pillSlideUp 0.5s ease forwards 0.3s; }
-        .journey-visible .pill-2 { animation: pillSlideUp 0.5s ease forwards 0.45s; }
-        .journey-visible .pill-3 { animation: pillSlideUp 0.5s ease forwards 0.6s; }
-        .journey-visible .pill-4 { animation: pillSlideUp 0.5s ease forwards 0.75s; }
-        .pill-1, .pill-2, .pill-3, .pill-4 { opacity: 0; }
-        .journey-animate { opacity: 0; }
+        @keyframes pulseRing {
+          0% { transform: scale(1); opacity: 0.7; }
+          100% { transform: scale(2.2); opacity: 0; }
+        }
+        @keyframes bgPatternShift {
+          0% { background-position: 0% 0%; }
+          100% { background-position: 100% 100%; }
+        }
+        @keyframes counterPop {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.08); }
+          100% { transform: scale(1); }
+        }
+        .journey-enter { animation: journeyFadeUp 0.75s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .journey-pill-1 { animation: pillSlideUp 0.5s ease forwards 0.35s; opacity: 0; }
+        .journey-pill-2 { animation: pillSlideUp 0.5s ease forwards 0.50s; opacity: 0; }
+        .journey-pill-3 { animation: pillSlideUp 0.5s ease forwards 0.65s; opacity: 0; }
+        .journey-pill-4 { animation: pillSlideUp 0.5s ease forwards 0.80s; opacity: 0; }
+        .journey-pill-hover:hover {
+          background: linear-gradient(135deg, rgba(134,179,76,0.18), rgba(208,167,42,0.15)) !important;
+          border-color: rgba(134,179,76,0.55) !important;
+          color: #2E5E10 !important;
+          transform: translateY(-2px) scale(1.04);
+          box-shadow: 0 4px 16px rgba(134,179,76,0.25);
+        }
+        .journey-pill-hover { transition: all 0.2s ease; }
+        .pulse-ring {
+          position: absolute;
+          inset: -4px;
+          border-radius: 9999px;
+          border: 2px solid rgba(208,122,42,0.6);
+          animation: pulseRing 2s ease-out infinite;
+        }
+        .pulse-ring-2 {
+          position: absolute;
+          inset: -4px;
+          border-radius: 9999px;
+          border: 2px solid rgba(208,122,42,0.4);
+          animation: pulseRing 2s ease-out infinite 0.7s;
+        }
+        .counter-pop { animation: counterPop 0.4s ease; }
       `}</style>
 
-      {/* Background blobs */}
+      {/* Subtle geometric SVG pattern overlay */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2386b34c' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundSize: "60px 60px",
+          animation: "bgPatternShift 20s linear infinite alternate",
+          opacity: 0.6,
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Warm light blobs */}
       <div
         style={{
           position: "absolute",
           top: -60,
           left: -80,
-          width: 340,
-          height: 340,
+          width: 380,
+          height: 380,
           borderRadius: "50%",
-          background: "rgba(208,122,42,0.12)",
-          filter: "blur(60px)",
+          background: "rgba(255,200,80,0.18)",
+          filter: "blur(70px)",
           animation: "blobFloat1 8s ease-in-out infinite",
         }}
       />
@@ -1166,86 +1250,191 @@ function JourneySection() {
           position: "absolute",
           bottom: -80,
           right: -60,
-          width: 300,
-          height: 300,
+          width: 320,
+          height: 320,
           borderRadius: "50%",
-          background: "rgba(90,138,46,0.15)",
-          filter: "blur(50px)",
+          background: "rgba(134,179,76,0.14)",
+          filter: "blur(60px)",
           animation: "blobFloat2 10s ease-in-out infinite",
         }}
       />
       <div
         style={{
           position: "absolute",
-          top: "40%",
-          right: "15%",
-          width: 200,
-          height: 200,
+          top: "30%",
+          right: "10%",
+          width: 220,
+          height: 220,
           borderRadius: "50%",
-          background: "rgba(23,59,42,0.5)",
-          filter: "blur(40px)",
+          background: "rgba(255,165,50,0.10)",
+          filter: "blur(50px)",
           animation: "blobFloat1 6s ease-in-out infinite reverse",
         }}
       />
 
+      {/* Floating particle dots */}
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          style={{
+            position: "absolute",
+            bottom: "10%",
+            left: p.left,
+            width: p.size,
+            height: p.size,
+            borderRadius: "50%",
+            background:
+              p.id % 2 === 0
+                ? "rgba(134,179,76,0.55)"
+                : "rgba(208,140,42,0.45)",
+            animation: `particleDrift ${p.duration} ease-in infinite ${p.delay}`,
+            pointerEvents: "none",
+          }}
+        />
+      ))}
+
       <div ref={ref} className="max-w-4xl mx-auto text-center relative z-10">
-        {/* Badge */}
-        <div className="journey-animate mb-6 inline-block">
-          <span
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-bold"
-            style={{
-              background: "rgba(208,122,42,0.2)",
-              border: "1px solid rgba(208,122,42,0.45)",
-              color: "#F5A623",
-            }}
+        {/* Live counters row */}
+        {isVisible && (
+          <div
+            className="journey-enter flex justify-center gap-8 mb-8"
+            style={{ animationDelay: "0s" }}
           >
-            🌟 Join 12,000+ Traders Already on Mandi
-          </span>
-        </div>
+            <div className="flex flex-col items-center">
+              <span
+                className="text-3xl font-extrabold"
+                style={{
+                  color: "#2E5E10",
+                  fontFamily: "'Playfair Display', serif",
+                }}
+              >
+                {traderCount.toLocaleString()}+
+              </span>
+              <span
+                className="text-xs font-semibold uppercase tracking-widest mt-1"
+                style={{ color: "#7A6940" }}
+              >
+                Active Traders
+              </span>
+            </div>
+            <div
+              style={{
+                width: 1,
+                background: "rgba(134,179,76,0.3)",
+                height: 52,
+              }}
+            />
+            <div className="flex flex-col items-center">
+              <span
+                className="text-3xl font-extrabold"
+                style={{
+                  color: "#2E5E10",
+                  fontFamily: "'Playfair Display', serif",
+                }}
+              >
+                {animalCount.toLocaleString()}+
+              </span>
+              <span
+                className="text-xs font-semibold uppercase tracking-widest mt-1"
+                style={{ color: "#7A6940" }}
+              >
+                Animals Listed
+              </span>
+            </div>
+            <div
+              style={{
+                width: 1,
+                background: "rgba(134,179,76,0.3)",
+                height: 52,
+              }}
+            />
+            <div className="flex flex-col items-center">
+              <span
+                className="text-3xl font-extrabold"
+                style={{
+                  color: "#2E5E10",
+                  fontFamily: "'Playfair Display', serif",
+                }}
+              >
+                98%
+              </span>
+              <span
+                className="text-xs font-semibold uppercase tracking-widest mt-1"
+                style={{ color: "#7A6940" }}
+              >
+                Satisfaction Rate
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Badge */}
+        {isVisible && (
+          <div
+            className="journey-enter mb-6 inline-block"
+            style={{ animationDelay: "0.08s" }}
+          >
+            <span
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-bold"
+              style={{
+                background: "rgba(134,179,76,0.15)",
+                border: "1px solid rgba(134,179,76,0.4)",
+                color: "#3A6B12",
+              }}
+            >
+              🌟 Pakistan's Fastest-Growing Livestock Marketplace
+            </span>
+          </div>
+        )}
 
         {/* Headline */}
-        <h2
-          className="journey-animate text-4xl md:text-5xl font-bold text-white mb-4 leading-tight"
-          style={{
-            fontFamily: "'Playfair Display', serif",
-            animationDelay: "0.1s",
-          }}
-        >
-          Start Your Journey{" "}
-          <span
+        {isVisible && (
+          <h2
+            className="journey-enter text-4xl md:text-5xl font-bold mb-4 leading-tight"
             style={{
-              background:
-                "linear-gradient(90deg, #F5A623, #FFD700, #D07A2A, #F5A623)",
-              backgroundSize: "200% auto",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              animation: "shimmerText 3s linear infinite",
+              fontFamily: "'Playfair Display', serif",
+              color: "#1A3A0A",
+              animationDelay: "0.15s",
             }}
           >
-            With Us
-          </span>
-        </h2>
+            Start Your Journey{" "}
+            <span
+              style={{
+                background:
+                  "linear-gradient(90deg, #3A7D12, #86B34C, #C8A020, #3A7D12)",
+                backgroundSize: "200% auto",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                animation: "shimmerTextLight 3s linear infinite",
+              }}
+            >
+              With Us
+            </span>
+          </h2>
+        )}
 
         {/* Sub-headline */}
-        <p
-          className="journey-animate text-gray-300 text-lg mb-8 max-w-xl mx-auto"
-          style={{ animationDelay: "0.2s" }}
-        >
-          Join Pakistan's fastest-growing livestock marketplace. Buy, sell, and
-          auction with confidence.
-        </p>
+        {isVisible && (
+          <p
+            className="journey-enter text-lg mb-8 max-w-xl mx-auto"
+            style={{ color: "#5A6045", animationDelay: "0.22s" }}
+          >
+            Join Pakistan's fastest-growing livestock marketplace. Buy, sell,
+            and auction with confidence.
+          </p>
+        )}
 
         {/* Feature pills */}
         <div className="flex flex-wrap gap-3 justify-center mb-10">
           {JOURNEY_PILLS.map((pill, i) => (
             <span
               key={pill.label}
-              className={`pill-${i + 1} inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white`}
+              className={`journey-pill-${i + 1} journey-pill-hover inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold cursor-default`}
               style={{
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                backdropFilter: "blur(8px)",
+                background: "rgba(134,179,76,0.1)",
+                border: "1px solid rgba(134,179,76,0.28)",
+                color: "#3A5A18",
               }}
             >
               <span>{pill.icon}</span>
@@ -1255,257 +1444,653 @@ function JourneySection() {
         </div>
 
         {/* CTA Buttons */}
-        <div
-          className="journey-animate flex flex-wrap gap-4 justify-center mb-8"
-          style={{ animationDelay: "0.3s" }}
-        >
-          <button
-            type="button"
-            onClick={() => navigate("/livestock")}
-            className="font-semibold px-8 py-3 rounded-full text-white transition-all duration-200 hover:scale-105"
-            style={{
-              background: "linear-gradient(135deg, #D07A2A, #F5A623)",
-              boxShadow: "0 4px 20px rgba(208,122,42,0.45)",
-            }}
-            data-ocid="journey.primary_button"
+        {isVisible && (
+          <div
+            className="journey-enter flex flex-wrap gap-4 justify-center mb-8"
+            style={{ animationDelay: "0.32s" }}
           >
-            Explore Livestock
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/auth")}
-            className="font-semibold px-8 py-3 rounded-full text-white border-2 border-white/40 transition-all duration-200 hover:scale-105 hover:bg-white/10"
-            data-ocid="journey.secondary_button"
-          >
-            List Your Animals
-          </button>
-        </div>
+            <div className="relative inline-block">
+              <div className="pulse-ring" />
+              <div className="pulse-ring-2" />
+              <button
+                type="button"
+                onClick={() => navigate("/livestock")}
+                className="relative font-semibold px-8 py-3 rounded-full text-white transition-all duration-200 hover:scale-105 hover:shadow-xl"
+                style={{
+                  background: "linear-gradient(135deg, #C07020, #F5A623)",
+                  boxShadow: "0 4px 22px rgba(208,122,42,0.4)",
+                  zIndex: 1,
+                }}
+                data-ocid="journey.primary_button"
+              >
+                Explore Livestock
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate("/auth")}
+              className="font-semibold px-8 py-3 rounded-full border-2 transition-all duration-200 hover:scale-105"
+              style={{
+                borderColor: "rgba(58,93,24,0.45)",
+                color: "#2E5E10",
+                background: "rgba(134,179,76,0.08)",
+              }}
+              data-ocid="journey.secondary_button"
+            >
+              List Your Animals
+            </button>
+          </div>
+        )}
 
         {/* Trust line */}
-        <p
-          className="journey-animate text-gray-400 text-sm"
-          style={{ animationDelay: "0.4s" }}
-        >
-          Free to join &nbsp;·&nbsp; No hidden fees &nbsp;·&nbsp; Verified
-          community
-        </p>
+        {isVisible && (
+          <p
+            className="journey-enter text-sm"
+            style={{ color: "#8A8A6A", animationDelay: "0.42s" }}
+          >
+            Free to join &nbsp;·&nbsp; No hidden fees &nbsp;·&nbsp; Verified
+            community
+          </p>
+        )}
       </div>
     </section>
   );
 }
 
 function FeaturedLivestockSlider() {
-  const CARD_WIDTH = 214; // px
-  const CARD_GAP = 16; // px
+  const CARD_WIDTH = 320;
+  const CARD_GAP = 20;
   const VISIBLE_CARDS = 4;
+  const CARD_STEP = CARD_WIDTH + CARD_GAP;
   const totalCards = MOCK_ANIMALS.length;
+  const maxIndex = totalCards - VISIBLE_CARDS;
 
   const sectionRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [introPlayed, setIntroPlayed] = useState(false);
-  const [introActive, setIntroActive] = useState(false);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [phase, setPhase] = useState<"waiting" | "spreading" | "sliding">(
+    "waiting",
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
+  const isDragging = useRef(false);
   const dragStartX = useRef(0);
-  const dragStartIndex = useRef(0);
-
-  const maxIndex = totalCards - VISIBLE_CARDS;
+  const dragCurrentX = useRef(0);
 
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !introPlayed) {
-          setIntroActive(true);
-          setIntroPlayed(true);
+        if (entry.isIntersecting && phase === "waiting") {
+          setTimeout(() => {
+            setPhase("spreading");
+            setTimeout(() => setPhase("sliding"), 850);
+          }, 80);
           obs.disconnect();
         }
       },
-      { threshold: 0.3 },
+      { threshold: 0.25 },
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [introPlayed]);
+  }, [phase]);
 
   const goTo = (idx: number) => {
     setCurrentIndex(Math.max(0, Math.min(maxIndex, idx)));
+    setDragOffset(0);
+    isDragging.current = false;
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
+    if (phase !== "sliding") return;
+    isDragging.current = true;
     dragStartX.current = e.clientX;
-    dragStartIndex.current = currentIndex;
+    dragCurrentX.current = e.clientX;
+    e.preventDefault();
   };
-
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const delta = dragStartX.current - e.clientX;
-    const cardStep = CARD_WIDTH + CARD_GAP;
-    const steps = Math.round(delta / cardStep);
-    goTo(dragStartIndex.current + steps);
+    if (!isDragging.current) return;
+    dragCurrentX.current = e.clientX;
+    setDragOffset(e.clientX - dragStartX.current);
   };
-
-  const handleMouseUp = () => setIsDragging(false);
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    const delta = dragStartX.current - e.clientX;
+    const steps = Math.round(delta / CARD_STEP);
+    goTo(currentIndex + steps);
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (phase !== "sliding") return;
     dragStartX.current = e.touches[0].clientX;
-    dragStartIndex.current = currentIndex;
+    dragCurrentX.current = e.touches[0].clientX;
+    isDragging.current = true;
   };
-
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging.current) return;
+    dragCurrentX.current = e.touches[0].clientX;
+    setDragOffset(e.touches[0].clientX - dragStartX.current);
+  };
   const handleTouchEnd = (e: React.TouchEvent) => {
+    isDragging.current = false;
     const delta = dragStartX.current - e.changedTouches[0].clientX;
-    const cardStep = CARD_WIDTH + CARD_GAP;
-    const steps = Math.round(delta / cardStep);
-    if (Math.abs(steps) >= 1) goTo(dragStartIndex.current + steps);
+    const steps = Math.round(delta / CARD_STEP);
+    goTo(currentIndex + steps);
   };
 
-  const trackTranslateX = -(currentIndex * (CARD_WIDTH + CARD_GAP));
+  const trackTranslateX =
+    -(currentIndex * CARD_STEP) + (phase === "sliding" ? dragOffset : 0);
+
+  const viewportWidth =
+    VISIBLE_CARDS * CARD_WIDTH + (VISIBLE_CARDS - 1) * CARD_GAP;
+  const viewportCenter = viewportWidth / 2;
+
+  const CONVEX_ANGLES = [16, 5, -5, -16];
+  const CONVEX_Z = [-60, 20, 20, -60];
+  const getCardStyle = (i: number): React.CSSProperties => {
+    if (phase === "sliding") {
+      const visibleOffset = i - currentIndex;
+      const rotateY =
+        visibleOffset >= 0 && visibleOffset < VISIBLE_CARDS
+          ? CONVEX_ANGLES[visibleOffset]
+          : 0;
+      const translateZ =
+        visibleOffset >= 0 && visibleOffset < VISIBLE_CARDS
+          ? CONVEX_Z[visibleOffset]
+          : 0;
+      return {
+        transition: isDragging.current ? "none" : undefined,
+        transform: `perspective(1200px) rotateY(${rotateY}deg) translateZ(${translateZ}px)`,
+      };
+    }
+    const cardCenter = i * CARD_STEP + CARD_WIDTH / 2;
+    const offset = viewportCenter - cardCenter;
+    if (phase === "waiting") {
+      return {
+        transform: `translateX(${offset}px)`,
+        transition: "none",
+        opacity: i < VISIBLE_CARDS ? 1 : 0,
+      };
+    }
+    return {
+      transform: "translateX(0px)",
+      transition: `transform 0.75s cubic-bezier(0.4,0,0.2,1) ${i < VISIBLE_CARDS ? i * 0.06 : 0}s, opacity 0.4s ease ${i < VISIBLE_CARDS ? i * 0.06 : 0}s`,
+      opacity: 1,
+    };
+  };
 
   return (
-    <div ref={sectionRef} className="py-16" style={{ background: "#F4EFE3" }}>
+    <div
+      ref={sectionRef}
+      style={{
+        height: "calc(100vh - 64px)",
+        width: "100%",
+        background:
+          "linear-gradient(160deg, #0A1A0F 0%, #0D2118 50%, #0A1510 100%)",
+        position: "relative",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
       <style>{`
-        @keyframes none {}
-        .livestock-card {
+        @keyframes floatOrb1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(60px, -40px) scale(1.1); }
+          66% { transform: translate(-30px, 50px) scale(0.9); }
+        }
+        @keyframes floatOrb2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(-80px, 60px) scale(1.15); }
+        }
+        @keyframes floatOrb3 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          40% { transform: translate(50px, -70px) scale(1.05); }
+          80% { transform: translate(-20px, 30px) scale(0.95); }
+        }
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes glowPulse {
+          0%, 100% { box-shadow: 0 0 20px rgba(45, 212, 130, 0.3), 0 0 40px rgba(45, 212, 130, 0.1); }
+          50% { box-shadow: 0 0 30px rgba(45, 212, 130, 0.5), 0 0 60px rgba(45, 212, 130, 0.2); }
+        }
+        .livestock-card-dark {
           width: ${CARD_WIDTH}px;
           min-width: ${CARD_WIDTH}px;
-          height: 310px;
+          height: 440px;
           border-radius: 0;
-          background: #fff;
-          box-shadow: 0 2px 12px rgba(23,59,42,0.10);
+          background: rgba(10, 28, 18, 0.75);
+          backdrop-filter: blur(16px);
+          border: 1px solid rgba(45, 212, 130, 0.12);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
           overflow: hidden;
           flex-shrink: 0;
           display: flex;
           flex-direction: column;
+          transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+          cursor: pointer;
+        }
+        .livestock-card-dark:hover {
+          border-color: rgba(45, 212, 130, 0.45);
+          box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 24px rgba(45, 212, 130, 0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+          transform: translateY(-4px);
         }
         .livestock-track {
           display: flex;
           gap: ${CARD_GAP}px;
-          transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
           will-change: transform;
           user-select: none;
           cursor: grab;
         }
         .livestock-track:active { cursor: grabbing; }
-        .livestock-intro-card {
-          transition: transform 0.65s cubic-bezier(0.4,0,0.2,1);
+        .livestock-track.is-sliding {
+          transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+        }
+        .livestock-track.is-dragging {
+          transition: none;
+        }
+        .arrow-btn-glow {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          border: 1.5px solid rgba(45, 212, 130, 0.4);
+          background: rgba(10, 28, 18, 0.8);
+          backdrop-filter: blur(12px);
+          color: #4ade80;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 22px;
+          cursor: pointer;
+          transition: all 0.25s ease;
+          animation: glowPulse 3s ease-in-out infinite;
+        }
+        .arrow-btn-glow:hover {
+          background: rgba(45, 212, 130, 0.2);
+          border-color: rgba(45, 212, 130, 0.8);
+          box-shadow: 0 0 20px rgba(45, 212, 130, 0.4);
+          transform: scale(1.1);
+        }
+        .arrow-btn-glow:disabled {
+          opacity: 0.25;
+          cursor: not-allowed;
+          animation: none;
+          transform: none;
+        }
+        .price-gold {
+          background: linear-gradient(90deg, #F5A623, #FFD700, #F5A623);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: gradientShift 3s linear infinite;
+          font-weight: 800;
+          font-size: 1rem;
+        }
+        .verified-badge-glow {
+          background: rgba(45, 212, 130, 0.15);
+          border: 1px solid rgba(45, 212, 130, 0.4);
+          color: #4ade80;
+          text-shadow: 0 0 8px rgba(45, 212, 130, 0.6);
+          font-size: 10px;
+          font-weight: 700;
+          padding: 2px 8px;
+          letter-spacing: 0.05em;
+        }
+        .heading-gradient {
+          background: linear-gradient(135deg, #4ade80 0%, #86efac 30%, #F5A623 70%, #FFD700 100%);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: gradientShift 4s linear infinite;
+        }
+        .dot-indicator {
+          height: 3px;
+          border-radius: 0;
+          transition: all 0.3s ease;
+          cursor: pointer;
         }
       `}</style>
-      <div className="max-w-6xl mx-auto px-4">
-        <h2 className="text-3xl font-bold text-[#1F2A22] mb-2">
-          Featured Livestock
-        </h2>
-        <p className="text-[#5E6660] mb-8">
-          Hand-picked animals from verified sellers
-        </p>
 
-        <div className="relative">
+      {/* Background ambient orbs */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: "-10%",
+            left: "-5%",
+            width: 500,
+            height: 500,
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%)",
+            animation: "floatOrb1 18s ease-in-out infinite",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: "-15%",
+            right: "-8%",
+            width: 600,
+            height: 600,
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(245,166,35,0.06) 0%, transparent 70%)",
+            animation: "floatOrb2 22s ease-in-out infinite",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: "30%",
+            right: "15%",
+            width: 300,
+            height: 300,
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(74,222,128,0.05) 0%, transparent 70%)",
+            animation: "floatOrb3 15s ease-in-out infinite",
+          }}
+        />
+        {/* Grain texture overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`,
+            opacity: 0.4,
+          }}
+        />
+      </div>
+
+      {/* Content */}
+      <div style={{ position: "relative", zIndex: 1, padding: "0 24px" }}>
+        {/* Heading */}
+        <div style={{ textAlign: "center", marginBottom: 36 }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              background: "rgba(45,212,130,0.08)",
+              border: "1px solid rgba(45,212,130,0.2)",
+              padding: "4px 16px",
+              marginBottom: 14,
+            }}
+          >
+            <span
+              style={{
+                color: "#4ade80",
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+              }}
+            >
+              ✦ Live Marketplace ✦
+            </span>
+          </div>
+          <h2
+            className="heading-gradient"
+            style={{
+              fontSize: "clamp(2rem, 4vw, 3.2rem)",
+              fontWeight: 900,
+              fontFamily: "'Playfair Display', serif",
+              lineHeight: 1.1,
+              margin: 0,
+            }}
+          >
+            Featured Livestock
+          </h2>
+          <div
+            style={{
+              width: 80,
+              height: 2,
+              margin: "12px auto 0",
+              background:
+                "linear-gradient(90deg, transparent, #4ade80, #F5A623, transparent)",
+            }}
+          />
+          <p
+            style={{
+              color: "rgba(200,230,210,0.6)",
+              marginTop: 10,
+              fontSize: 14,
+              letterSpacing: "0.03em",
+            }}
+          >
+            Hand-picked animals from verified sellers across Pakistan
+          </p>
+        </div>
+
+        {/* Slider area */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+            justifyContent: "center",
+          }}
+        >
           {/* Left Arrow */}
           <button
             type="button"
             data-ocid="featured.pagination_prev"
             onClick={() => goTo(currentIndex - 1)}
             disabled={currentIndex === 0}
-            className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center bg-[#173B2A] text-white shadow-lg disabled:opacity-30 transition-opacity"
-            style={{ borderRadius: 0 }}
+            className="arrow-btn-glow"
+            style={{ flexShrink: 0 }}
           >
             ‹
           </button>
 
           {/* Viewport */}
           <div
-            className="overflow-hidden"
+            ref={viewportRef}
             style={{
-              width: `${VISIBLE_CARDS * CARD_WIDTH + (VISIBLE_CARDS - 1) * CARD_GAP}px`,
-              maxWidth: "100%",
+              overflow: "hidden",
+              width: `${viewportWidth}px`,
+              maxWidth: "calc(100vw - 140px)",
+              perspective: "1400px",
             }}
           >
             <div
-              ref={trackRef}
-              className="livestock-track"
-              style={{ transform: `translateX(${trackTranslateX}px)` }}
-              onMouseDown={introActive ? handleMouseDown : undefined}
-              onMouseMove={introActive ? handleMouseMove : undefined}
-              onMouseUp={introActive ? handleMouseUp : undefined}
-              onMouseLeave={introActive ? handleMouseUp : undefined}
-              onTouchStart={introActive ? handleTouchStart : undefined}
-              onTouchEnd={introActive ? handleTouchEnd : undefined}
+              className={`livestock-track${phase === "sliding" && !isDragging.current ? " is-sliding" : phase === "sliding" && isDragging.current ? " is-dragging" : ""}`}
+              style={{
+                transform: `translateX(${trackTranslateX}px)`,
+                transformStyle: "preserve-3d",
+              }}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
-              {MOCK_ANIMALS.map((animal, i) => {
-                // Spread intro: calculate natural offset from center
-                const centerIdx = (VISIBLE_CARDS - 1) / 2;
-                const naturalOffsetFromCenter =
-                  (i - centerIdx) * (CARD_WIDTH + CARD_GAP);
-                // Before intro: all cards pulled toward center (negative of their natural offset)
-                // After intro (introActive): translateX(0) = natural position
-                const introTransform = introActive
-                  ? "translateX(0px)"
-                  : `translateX(${-naturalOffsetFromCenter}px)`;
-                const delay = introActive ? `${i * 0.045}s` : "0s";
-
-                return (
+              {MOCK_ANIMALS.map((animal, i) => (
+                <div
+                  key={animal.id}
+                  className="livestock-card-dark"
+                  style={getCardStyle(i)}
+                >
+                  {/* Image area */}
                   <div
-                    key={animal.id}
-                    className="livestock-card livestock-intro-card"
+                    style={{ height: 260, position: "relative", flexShrink: 0 }}
+                  >
+                    <img
+                      src={`https://picsum.photos/400/300?random=${animal.id + 20}`}
+                      alt={animal.title}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        display: "block",
+                        transform: "scale(1.08)",
+                      }}
+                      draggable={false}
+                    />
+                    {/* Gradient overlay */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "linear-gradient(to bottom, transparent 40%, rgba(10,28,18,0.95) 100%)",
+                      }}
+                    />
+                    {/* Vignette / barrel lens effect */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "radial-gradient(ellipse at center, transparent 38%, rgba(0,0,0,0.5) 100%)",
+                        pointerEvents: "none",
+                      }}
+                    />
+                    {/* Verified badge */}
+                    <span
+                      className="verified-badge-glow"
+                      style={{ position: "absolute", top: 10, right: 10 }}
+                    >
+                      ✓ VERIFIED
+                    </span>
+                    {/* Animal type tag */}
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: 10,
+                        left: 10,
+                        background: "rgba(0,0,0,0.5)",
+                        backdropFilter: "blur(8px)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        color: "rgba(255,255,255,0.85)",
+                        fontSize: 11,
+                        fontWeight: 600,
+                        padding: "2px 8px",
+                      }}
+                    >
+                      {animal.breed}
+                    </span>
+                  </div>
+
+                  {/* Card body */}
+                  <div
                     style={{
-                      transitionDelay: delay,
-                      transform: introTransform,
+                      padding: "14px 16px 16px",
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      background:
+                        "linear-gradient(180deg, rgba(10,28,18,0.9) 0%, rgba(8,20,12,0.98) 100%)",
                     }}
                   >
-                    <div
-                      className="relative"
-                      style={{ height: 180, flexShrink: 0 }}
-                    >
-                      <img
-                        src={`https://picsum.photos/400/300?random=${animal.id + 20}`}
-                        alt={animal.title}
-                        className="w-full h-full object-cover"
-                        draggable={false}
-                      />
-                      <span
-                        className="absolute top-2 right-2 text-xs font-bold px-2 py-0.5"
+                    <div>
+                      <h3
                         style={{
-                          background: "#173B2A",
-                          color: "#fff",
-                          borderRadius: 0,
+                          color: "#f0faf4",
+                          fontWeight: 700,
+                          fontSize: 15,
+                          marginBottom: 8,
+                          letterSpacing: "0.01em",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
-                        ✓ Verified
-                      </span>
-                    </div>
-                    <div className="p-3 flex flex-col flex-1 justify-between">
-                      <div>
-                        <h3 className="font-bold text-[#1F2A22] text-sm mb-0.5 truncate">
-                          {animal.title}
-                        </h3>
-                        <p className="text-xs text-[#5E6660] mb-0.5">
-                          🐄 {animal.breed}
-                        </p>
-                        <p className="text-xs text-[#5E6660] mb-0.5">
-                          📅 {animal.age} · ⚖️ {animal.weight}
-                        </p>
-                        <p className="text-xs text-[#5E6660]">
-                          📍 {animal.location}
-                        </p>
-                      </div>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="font-bold text-[#173B2A] text-xs">
-                          {animal.price}
-                        </span>
-                        <button
-                          type="button"
-                          data-ocid={`featured.item.${i + 1}`}
-                          onClick={() => navigate("/auth")}
-                          className="btn-green text-xs py-1 px-3"
-                          style={{ borderRadius: 0 }}
+                        {animal.title}
+                      </h3>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 4,
+                        }}
+                      >
+                        <span
+                          style={{
+                            color: "rgba(180,220,195,0.65)",
+                            fontSize: 12,
+                          }}
                         >
-                          View
-                        </button>
+                          📅 {animal.age} &nbsp;·&nbsp; ⚖️ {animal.weight}
+                        </span>
+                        <span
+                          style={{
+                            color: "rgba(180,220,195,0.55)",
+                            fontSize: 12,
+                          }}
+                        >
+                          📍 {animal.location}
+                        </span>
                       </div>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginTop: 12,
+                      }}
+                    >
+                      <span className="price-gold">{animal.price}</span>
+                      <button
+                        type="button"
+                        data-ocid={`featured.item.${i + 1}`}
+                        onClick={() => navigate("/auth")}
+                        style={{
+                          background:
+                            "linear-gradient(135deg, rgba(34,197,94,0.2), rgba(45,212,130,0.1))",
+                          border: "1px solid rgba(74,222,128,0.4)",
+                          color: "#4ade80",
+                          fontSize: 12,
+                          fontWeight: 600,
+                          padding: "6px 14px",
+                          cursor: "pointer",
+                          letterSpacing: "0.05em",
+                          transition: "all 0.2s ease",
+                          borderRadius: 0,
+                        }}
+                        onMouseEnter={(e) => {
+                          (
+                            e.currentTarget as HTMLButtonElement
+                          ).style.background = "rgba(74,222,128,0.25)";
+                          (
+                            e.currentTarget as HTMLButtonElement
+                          ).style.borderColor = "rgba(74,222,128,0.7)";
+                        }}
+                        onMouseLeave={(e) => {
+                          (
+                            e.currentTarget as HTMLButtonElement
+                          ).style.background =
+                            "linear-gradient(135deg, rgba(34,197,94,0.2), rgba(45,212,130,0.1))";
+                          (
+                            e.currentTarget as HTMLButtonElement
+                          ).style.borderColor = "rgba(74,222,128,0.4)";
+                        }}
+                      >
+                        VIEW →
+                      </button>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -1515,28 +2100,37 @@ function FeaturedLivestockSlider() {
             data-ocid="featured.pagination_next"
             onClick={() => goTo(currentIndex + 1)}
             disabled={currentIndex >= maxIndex}
-            className="absolute -right-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center bg-[#173B2A] text-white shadow-lg disabled:opacity-30 transition-opacity"
-            style={{ borderRadius: 0 }}
+            className="arrow-btn-glow"
+            style={{ flexShrink: 0 }}
           >
             ›
           </button>
         </div>
 
         {/* Dot indicators */}
-        <div className="flex justify-center gap-1.5 mt-6">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 6,
+            marginTop: 24,
+          }}
+        >
           {Array.from({ length: maxIndex + 1 }, (_, i) => i).map((i) => (
             <button
-              key={i}
+              key={`dot-${i}`}
               type="button"
               onClick={() => goTo(i)}
-              className="transition-all duration-300"
+              className="dot-indicator"
               style={{
-                width: currentIndex === i ? 20 : 8,
-                height: 8,
-                borderRadius: 0,
-                background: currentIndex === i ? "#173B2A" : "#A8C4B0",
+                width: i === currentIndex ? 28 : 8,
+                background:
+                  i === currentIndex
+                    ? "linear-gradient(90deg, #4ade80, #F5A623)"
+                    : "rgba(255,255,255,0.15)",
                 border: "none",
                 cursor: "pointer",
+                padding: 0,
               }}
             />
           ))}
@@ -1561,174 +2155,412 @@ export default function Landing() {
     );
     return () => clearInterval(t);
   }, []);
+
+  // Scroll-driven hero animation
+  const outerWrapperRef = useRef<HTMLDivElement>(null);
+  const tvRef = useRef<HTMLDivElement>(null);
+  const tvInnerRef = useRef<HTMLDivElement>(null);
+  const tvBadgeBottomRef = useRef<HTMLDivElement>(null);
+  const tvBadgeTopRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
+
+    let rafId: number;
+    let cachedScaleNeeded = 1;
+    let cachedTargetX = 0;
+    let cachedTargetY = 0;
+    let measured = false;
+
+    const measure = () => {
+      const tvEl = tvInnerRef.current;
+      if (!tvEl) return;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const rect = tvEl.getBoundingClientRect();
+      const scaleX = vw / rect.width;
+      const scaleY = vh / rect.height;
+      cachedScaleNeeded = Math.max(scaleX, scaleY) * 1.05;
+      const tvCenterX = rect.left + rect.width / 2;
+      const tvCenterY = rect.top + rect.height / 2;
+      cachedTargetX = vw / 2 - tvCenterX;
+      cachedTargetY = vh / 2 - tvCenterY;
+      measured = true;
+    };
+
+    const onScroll = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const outer = outerWrapperRef.current;
+        const tvEl = tvInnerRef.current;
+        if (!outer || !tvEl) return;
+
+        // Re-measure on first scroll so we get the settled layout
+        if (!measured) measure();
+
+        const outerRect = outer.getBoundingClientRect();
+        const trackLength = outer.offsetHeight - window.innerHeight;
+        const scrolled = -outerRect.top; // pixels scrolled into the wrapper
+        const progress = Math.max(0, Math.min(1, scrolled / trackLength));
+
+        const currentScale = 1 + (cachedScaleNeeded - 1) * progress;
+        const currentX = cachedTargetX * progress;
+        const currentY = cachedTargetY * progress;
+
+        // Interpolate rotation from 4deg → 0deg
+        const startRotZ = 4;
+        const startRotY = 10;
+        const rotZ = startRotZ * (1 - progress);
+        const rotY = startRotY * (1 - progress);
+
+        tvEl.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale}) perspective(900px) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
+        tvEl.style.transformOrigin = "center center";
+
+        // Fade badges out as TV expands (disappear after 60% progress)
+        const badgeOpacity = Math.max(0, 1 - progress * 2.5);
+        if (tvBadgeBottomRef.current)
+          tvBadgeBottomRef.current.style.opacity = String(badgeOpacity);
+        if (tvBadgeTopRef.current)
+          tvBadgeTopRef.current.style.opacity = String(badgeOpacity);
+      });
+    };
+
+    // Initial measure after layout settles
+    const tid = setTimeout(() => {
+      measure();
+      // Trigger once to set initial state
+      onScroll();
+    }, 300);
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      clearTimeout(tid);
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", onScroll);
+      // Reset transform on cleanup
+      if (tvInnerRef.current) {
+        tvInnerRef.current.style.transform = "";
+      }
+      if (tvBadgeBottomRef.current)
+        tvBadgeBottomRef.current.style.opacity = "1";
+      if (tvBadgeTopRef.current) tvBadgeTopRef.current.style.opacity = "1";
+    };
+  }, [isMobile]);
+
   return (
     <div className="min-h-screen">
+      <style>{`
+        @keyframes heartbeat {
+          0%, 100% { transform: scale(1); }
+          14% { transform: scale(1.04); }
+          28% { transform: scale(1); }
+          42% { transform: scale(1.03); }
+          70% { transform: scale(1); }
+        }
+        @keyframes orbPulse {
+          0%, 100% { transform: scale(1); opacity: 0.7; }
+          50% { transform: scale(1.3); opacity: 1; }
+        }
+      `}</style>
       <Navbar dark />
 
       {/* ── Hero ── */}
+      {/* Outer tall wrapper: 450vh scroll track */}
       <div
+        ref={outerWrapperRef}
         style={{
+          position: "relative",
+          height: isMobile ? "auto" : "250vh",
           background:
             "linear-gradient(135deg, #0F2C1F 0%, #1a4a33 50%, #173B2A 100%)",
-          minHeight: 580,
         }}
-        className="relative flex items-center overflow-hidden"
       >
-        {/* Animated background circles */}
-        <div className="absolute top-20 left-10 w-64 h-64 rounded-full bg-white/5 animate-float" />
-        <div className="absolute bottom-10 right-20 w-48 h-48 rounded-full bg-[#D07A2A]/10 animate-float-delayed" />
-
-        <div className="max-w-6xl mx-auto px-4 w-full py-16 relative z-10">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Left: Hero copy */}
-            <div className="animate-fade-up">
-              <span className="inline-block bg-[#D07A2A] text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 animate-pulse-slow">
-                🇵🇰 Pakistan's #1 Livestock Platform
-              </span>
-              <h1
-                className="text-white text-4xl md:text-5xl font-bold leading-tight mb-4"
-                style={{ fontFamily: "'Playfair Display', serif" }}
-              >
-                Pakistan's Premier Digital Livestock Marketplace
-              </h1>
-              <p className="text-gray-300 text-lg mb-8">
-                Buy, sell and auction livestock online. Verified sellers,
-                transparent pricing, secure transactions.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <button
-                  type="button"
-                  onClick={() => navigate("/auth")}
-                  className="btn-orange font-semibold hover:scale-105 transition-transform"
-                  data-ocid="hero.primary_button"
-                >
-                  Explore Livestock
-                </button>
-                <button
-                  type="button"
-                  onClick={() => navigate("/auth")}
-                  className="border-2 border-white text-white rounded-full px-6 py-2.5 font-semibold hover:bg-white hover:text-[#173B2A] transition-all duration-200"
-                  data-ocid="hero.secondary_button"
-                >
-                  List Your Animals
-                </button>
-              </div>
-            </div>
-
-            {/* Right: Video container */}
+        <div
+          ref={stickyRef}
+          style={{
+            position: isMobile ? "relative" : "sticky",
+            top: 0,
+            height: isMobile ? "auto" : "100vh",
+            overflow: "hidden",
+            background:
+              "linear-gradient(135deg, #0F2C1F 0%, #1a4a33 50%, #173B2A 100%)",
+            minHeight: 580,
+          }}
+          className="relative flex items-center overflow-hidden"
+        >
+          {/* Animated background circles */}
+          <div className="absolute top-20 left-10 w-64 h-64 rounded-full bg-white/5 animate-float" />
+          <div className="absolute bottom-10 right-20 w-48 h-48 rounded-full bg-[#D07A2A]/10 animate-float-delayed" />
+          {/* Pulsing ambient orbs */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          >
             <div
-              className="animate-fade-up relative"
-              style={{ animationDelay: "0.15s" }}
-            >
-              {/* Gradient border frame — rotated -10deg, sharp corners */}
-              <div
-                style={{
-                  transform: "perspective(900px) rotateY(10deg) rotateZ(4deg)",
-                  display: "inline-block",
-                }}
-              >
-                <div
-                  className="p-1"
+              style={{
+                position: "absolute",
+                top: "15%",
+                left: "8%",
+                width: 180,
+                height: 180,
+                borderRadius: "50%",
+                background:
+                  "radial-gradient(circle, rgba(208,122,42,0.18) 0%, transparent 70%)",
+                animation: "orbPulse 3s ease-in-out infinite",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                bottom: "20%",
+                right: "10%",
+                width: 220,
+                height: 220,
+                borderRadius: "50%",
+                background:
+                  "radial-gradient(circle, rgba(46,125,50,0.15) 0%, transparent 70%)",
+                animation: "orbPulse 4s ease-in-out infinite 1s",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                width: 140,
+                height: 140,
+                borderRadius: "50%",
+                background:
+                  "radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)",
+                animation: "orbPulse 2.5s ease-in-out infinite 0.5s",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                top: "10%",
+                right: "25%",
+                width: 100,
+                height: 100,
+                borderRadius: "50%",
+                background:
+                  "radial-gradient(circle, rgba(208,122,42,0.12) 0%, transparent 70%)",
+                animation: "orbPulse 3.5s ease-in-out infinite 2s",
+              }}
+            />
+          </div>
+
+          <div className="max-w-6xl mx-auto px-4 w-full py-16 relative z-10">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              {/* Left: Hero copy */}
+              <div className="animate-fade-up text-center">
+                <span className="inline-block bg-[#D07A2A] text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 animate-pulse-slow">
+                  🇵🇰 Pakistan's #1 Livestock Platform
+                </span>
+                <h1
+                  className="text-white text-4xl md:text-5xl font-bold leading-tight mb-4"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  Pakistan's Premier Digital Livestock Marketplace
+                </h1>
+                <p
+                  className="text-gray-300 text-lg mb-8"
                   style={{
-                    background:
-                      "linear-gradient(135deg, #2E7D32 0%, #D07A2A 50%, #5A8A2E 100%)",
-                    boxShadow:
-                      "0 0 40px rgba(208,122,42,0.3), 0 20px 60px rgba(0,0,0,0.4)",
-                    borderRadius: 0,
-                    width: 520,
-                    height: 350,
+                    animation: "heartbeat 2.2s ease-in-out infinite",
+                    display: "inline-block",
+                    textShadow:
+                      "0 0 20px rgba(208,122,42,0.4), 0 0 40px rgba(208,122,42,0.15)",
                   }}
                 >
-                  <div
-                    style={{
-                      overflow: "hidden",
-                      borderRadius: 0,
-                      width: "100%",
-                      height: "100%",
-                      position: "relative",
-                      background: "#000",
-                    }}
+                  Buy, sell and auction livestock online. Verified sellers,
+                  transparent pricing, secure transactions.
+                </p>
+                <div className="flex flex-wrap gap-4 justify-center">
+                  <button
+                    type="button"
+                    onClick={() => navigate("/auth")}
+                    className="btn-orange font-semibold hover:scale-105 transition-transform"
+                    data-ocid="hero.primary_button"
                   >
-                    {heroImages.map((src, idx) => (
-                      <img
-                        key={src}
-                        src={src}
-                        alt={`Livestock ${idx + 1}`}
-                        style={{
-                          position: "absolute",
-                          inset: 0,
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                          opacity: idx === heroIndex ? 1 : 0,
-                          transition: "opacity 1.2s ease-in-out",
-                        }}
-                      />
-                    ))}
-                    {/* dot indicators */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        bottom: 10,
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        display: "flex",
-                        gap: 6,
-                        zIndex: 10,
-                      }}
-                    >
-                      {heroImages.map((_, idx) => (
-                        <div
-                          // biome-ignore lint/suspicious/noArrayIndexKey: stable static array
-                          key={idx}
-                          style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: "50%",
-                            background:
-                              idx === heroIndex
-                                ? "#D07A2A"
-                                : "rgba(255,255,255,0.5)",
-                            transition: "background 0.4s",
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
+                    Explore Livestock
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/auth")}
+                    className="border-2 border-white text-white rounded-full px-6 py-2.5 font-semibold hover:bg-white hover:text-[#173B2A] transition-all duration-200"
+                    data-ocid="hero.secondary_button"
+                  >
+                    List Your Animals
+                  </button>
                 </div>
               </div>
 
-              {/* Floating badge: bottom-left */}
+              {/* Right: Video container */}
               <div
-                className="absolute -bottom-3 -left-3 flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-white"
+                ref={tvRef}
+                className="relative"
                 style={{
-                  background: "rgba(15,44,31,0.85)",
-                  backdropFilter: "blur(12px)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+                  position: "relative",
+                  zIndex: 1,
                 }}
               >
-                <span className="text-lg">🐄</span>
-                <span>Live Livestock</span>
-              </div>
+                {/* Gradient border frame — animated by scroll handler */}
+                <div
+                  ref={tvInnerRef}
+                  style={{
+                    transform:
+                      "perspective(900px) rotateY(10deg) rotateZ(4deg)",
+                    transformOrigin: "center center",
+                    willChange: "transform",
+                    display: "inline-block",
+                    position: "relative",
+                  }}
+                >
+                  <div
+                    className="p-1"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #2E7D32 0%, #D07A2A 50%, #5A8A2E 100%)",
+                      boxShadow:
+                        "0 0 40px rgba(208,122,42,0.3), 0 20px 60px rgba(0,0,0,0.4)",
+                      borderRadius: 0,
+                      width: 560,
+                      height: 380,
+                    }}
+                  >
+                    <div
+                      style={{
+                        overflow: "hidden",
+                        borderRadius: 0,
+                        width: "100%",
+                        height: "100%",
+                        position: "relative",
+                        background: "#000",
+                      }}
+                    >
+                      {heroImages.map((src, idx) => (
+                        <img
+                          key={src}
+                          src={src}
+                          alt={`Livestock ${idx + 1}`}
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            opacity: idx === heroIndex ? 1 : 0,
+                            transition: "opacity 1.2s ease-in-out",
+                          }}
+                        />
+                      ))}
+                      {/* dot indicators */}
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: 10,
+                          left: "50%",
+                          transform: "translateX(-50%)",
+                          display: "flex",
+                          gap: 6,
+                          zIndex: 10,
+                        }}
+                      >
+                        {heroImages.map((_, idx) => (
+                          <div
+                            // biome-ignore lint/suspicious/noArrayIndexKey: stable static array
+                            key={idx}
+                            style={{
+                              width: 8,
+                              height: 8,
+                              borderRadius: "50%",
+                              background:
+                                idx === heroIndex
+                                  ? "#D07A2A"
+                                  : "rgba(255,255,255,0.5)",
+                              transition: "background 0.4s",
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-              {/* Floating badge: top-right */}
-              <div
-                className="absolute -top-3 -right-3 flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-white"
-                style={{
-                  background: "rgba(208,122,42,0.85)",
-                  backdropFilter: "blur(12px)",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  boxShadow: "0 4px 20px rgba(208,122,42,0.4)",
-                }}
-              >
-                <span className="text-lg">🐐</span>
-                <span>Buy &amp; Sell</span>
+                {/* Floating badge: bottom-left — inside tvInnerRef so it scales with TV */}
+                <div
+                  ref={tvBadgeBottomRef}
+                  style={{
+                    position: "absolute",
+                    bottom: -12,
+                    left: -12,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "8px 12px",
+                    borderRadius: 12,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: "#fff",
+                    background: "rgba(15,44,31,0.85)",
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+                    zIndex: 10,
+                    pointerEvents: "none",
+                    willChange: "opacity",
+                  }}
+                >
+                  <span style={{ fontSize: 18 }}>🐄</span>
+                  <span>Live Livestock</span>
+                </div>
+
+                {/* Floating badge: top-right — inside tvInnerRef so it scales with TV */}
+                <div
+                  ref={tvBadgeTopRef}
+                  style={{
+                    position: "absolute",
+                    top: -12,
+                    right: -12,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "8px 12px",
+                    borderRadius: 12,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: "#fff",
+                    background: "rgba(208,122,42,0.85)",
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    boxShadow: "0 4px 20px rgba(208,122,42,0.4)",
+                    zIndex: 10,
+                    pointerEvents: "none",
+                    willChange: "opacity",
+                  }}
+                >
+                  <span style={{ fontSize: 18 }}>🐐</span>
+                  <span>Buy &amp; Sell</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {/* end outer wrapper */}
 
       {/* ── Who We Are ── */}
       <section
