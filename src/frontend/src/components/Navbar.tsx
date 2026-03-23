@@ -15,6 +15,13 @@ import {
   useUserProfile,
 } from "../hooks/useUserProfile";
 
+const ABOUT_LINKS: { label: string; path: AppPage }[] = [
+  { label: "Buyer", path: "/about/buyer" },
+  { label: "Seller", path: "/about/seller" },
+  { label: "Cattle Farmer", path: "/about/cattle-farmer" },
+  { label: "Service Provider", path: "/about/service-provider" },
+];
+
 export default function Navbar({ dark = false }: { dark?: boolean }) {
   const { identity, clear } = useInternetIdentity();
   const { profile, switchRole, clearProfile } = useUserProfile();
@@ -22,7 +29,10 @@ export default function Navbar({ dark = false }: { dark?: boolean }) {
     identity !== undefined && !identity.getPrincipal().isAnonymous();
   const [menuOpen, setMenuOpen] = useState(false);
   const [roleDropOpen, setRoleDropOpen] = useState(false);
+  const [aboutDropOpen, setAboutDropOpen] = useState(false);
+  const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
   const roleDropRef = useRef<HTMLDivElement>(null);
+  const aboutDropRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -31,6 +41,12 @@ export default function Navbar({ dark = false }: { dark?: boolean }) {
         !roleDropRef.current.contains(e.target as Node)
       ) {
         setRoleDropOpen(false);
+      }
+      if (
+        aboutDropRef.current &&
+        !aboutDropRef.current.contains(e.target as Node)
+      ) {
+        setAboutDropOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -49,7 +65,6 @@ export default function Navbar({ dark = false }: { dark?: boolean }) {
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });
     } else {
-      // navigate to home then scroll after transition
       navigate("/");
       setTimeout(() => {
         const target = document.getElementById(id);
@@ -93,14 +108,56 @@ export default function Navbar({ dark = false }: { dark?: boolean }) {
           >
             Home
           </button>
-          <button
-            type="button"
-            onClick={() => scrollToSection("who-we-are")}
-            className={`text-sm font-medium px-3 py-2 rounded-lg transition-all ${navLinkBase}`}
-            data-ocid="nav.about_link"
-          >
-            About Us
-          </button>
+
+          {/* About Us with dropdown */}
+          <div className="relative" ref={aboutDropRef}>
+            <div className="flex items-center">
+              <button
+                type="button"
+                onClick={() => scrollToSection("who-we-are")}
+                className={`text-sm font-medium px-3 py-2 rounded-l-lg transition-all ${navLinkBase}`}
+                data-ocid="nav.about_link"
+              >
+                About Us
+              </button>
+              <button
+                type="button"
+                onClick={() => setAboutDropOpen(!aboutDropOpen)}
+                className={`text-sm font-medium px-1.5 py-2 rounded-r-lg transition-all ${navLinkBase}`}
+                aria-label="About dropdown"
+                data-ocid="nav.about_dropdown"
+              >
+                <ChevronDown
+                  size={14}
+                  className={`transition-transform duration-200 ${aboutDropOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+            </div>
+            {aboutDropOpen && (
+              <div className="absolute left-0 mt-1 w-52 bg-white rounded-xl shadow-xl border border-[#E2D6C3] overflow-hidden z-50">
+                <div className="px-3 py-2 border-b border-[#E2D6C3]">
+                  <p className="text-xs text-[#9E9E9E] font-medium">
+                    EXPLORE BY ROLE
+                  </p>
+                </div>
+                {ABOUT_LINKS.map((link) => (
+                  <button
+                    type="button"
+                    key={link.path}
+                    onClick={() => {
+                      navigate(link.path);
+                      setAboutDropOpen(false);
+                    }}
+                    className="w-full flex items-center px-3 py-2.5 text-sm text-[#5E6660] hover:bg-[#F4EFE3] hover:text-[#173B2A] transition-colors"
+                    data-ocid={`nav.about_${link.label.toLowerCase().replace(/ /g, "_")}_link`}
+                  >
+                    {link.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <button
             type="button"
             onClick={() => navigate("/livestock")}
@@ -131,7 +188,6 @@ export default function Navbar({ dark = false }: { dark?: boolean }) {
         <div className="hidden md:flex items-center gap-2">
           {isAuthenticated ? (
             <>
-              {/* Role Switcher */}
               {profile.roles.length > 0 && (
                 <div className="relative" ref={roleDropRef}>
                   <button
@@ -147,9 +203,7 @@ export default function Navbar({ dark = false }: { dark?: boolean }) {
                     <span>{activeMeta.label}</span>
                     <ChevronDown
                       size={14}
-                      className={`transition-transform duration-200 ${
-                        roleDropOpen ? "rotate-180" : ""
-                      }`}
+                      className={`transition-transform duration-200 ${roleDropOpen ? "rotate-180" : ""}`}
                     />
                   </button>
                   {roleDropOpen && (
@@ -203,8 +257,6 @@ export default function Navbar({ dark = false }: { dark?: boolean }) {
                   )}
                 </div>
               )}
-
-              {/* Profile button */}
               <button
                 type="button"
                 onClick={() => navigate("/profile")}
@@ -217,8 +269,6 @@ export default function Navbar({ dark = false }: { dark?: boolean }) {
                 <User size={15} />
                 <span>{profile.name || "Profile"}</span>
               </button>
-
-              {/* Logout */}
               <button
                 type="button"
                 onClick={handleLogout}
@@ -272,7 +322,7 @@ export default function Navbar({ dark = false }: { dark?: boolean }) {
       {/* Mobile Menu */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          menuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+          menuOpen ? "max-h-[640px] opacity-100" : "max-h-0 opacity-0"
         } ${dark ? "bg-[#0F2C1F]" : "bg-white"} border-t border-[#E2D6C3]`}
       >
         <div className="px-4 py-4 space-y-2">
@@ -291,18 +341,61 @@ export default function Navbar({ dark = false }: { dark?: boolean }) {
           >
             Home
           </button>
-          <button
-            type="button"
-            onClick={() => scrollToSection("who-we-are")}
-            className={`w-full text-left text-sm font-medium px-3 py-2.5 rounded-lg transition-colors ${
-              dark
-                ? "text-gray-200 hover:bg-white/10"
-                : "text-[#5E6660] hover:bg-[#F4EFE3]"
-            }`}
-            data-ocid="nav.mobile_about_link"
-          >
-            About Us
-          </button>
+
+          {/* Mobile About Us expandable */}
+          <div>
+            <div className="flex items-center">
+              <button
+                type="button"
+                onClick={() => scrollToSection("who-we-are")}
+                className={`flex-1 text-left text-sm font-medium px-3 py-2.5 rounded-l-lg transition-colors ${
+                  dark
+                    ? "text-gray-200 hover:bg-white/10"
+                    : "text-[#5E6660] hover:bg-[#F4EFE3]"
+                }`}
+                data-ocid="nav.mobile_about_link"
+              >
+                About Us
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileAboutOpen(!mobileAboutOpen)}
+                className={`px-3 py-2.5 rounded-r-lg transition-colors ${
+                  dark
+                    ? "text-gray-200 hover:bg-white/10"
+                    : "text-[#5E6660] hover:bg-[#F4EFE3]"
+                }`}
+              >
+                <ChevronDown
+                  size={14}
+                  className={`transition-transform duration-200 ${mobileAboutOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+            </div>
+            {mobileAboutOpen && (
+              <div className="ml-4 mt-1 space-y-1">
+                {ABOUT_LINKS.map((link) => (
+                  <button
+                    type="button"
+                    key={link.path}
+                    onClick={() => {
+                      navigate(link.path);
+                      setMenuOpen(false);
+                    }}
+                    className={`w-full text-left text-sm px-3 py-2 rounded-lg transition-colors ${
+                      dark
+                        ? "text-gray-300 hover:bg-white/10"
+                        : "text-[#173B2A] hover:bg-[#E7F4EA]"
+                    }`}
+                    data-ocid={`nav.mobile_about_${link.label.toLowerCase().replace(/ /g, "_")}_link`}
+                  >
+                    → {link.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <button
             type="button"
             onClick={() => {
@@ -349,9 +442,7 @@ export default function Navbar({ dark = false }: { dark?: boolean }) {
           {isAuthenticated ? (
             <>
               <div
-                className={`text-xs font-semibold px-3 pt-2 pb-1 ${
-                  dark ? "text-gray-400" : "text-[#9E9E9E]"
-                }`}
+                className={`text-xs font-semibold px-3 pt-2 pb-1 ${dark ? "text-gray-400" : "text-[#9E9E9E]"}`}
               >
                 MY ROLES
               </div>

@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Toaster } from "./components/ui/sonner";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
+import AboutBuyerPage from "./pages/AboutBuyerPage";
+import AboutCattleFarmerPage from "./pages/AboutCattleFarmerPage";
+import AboutSellerPage from "./pages/AboutSellerPage";
+import AboutServiceProviderPage from "./pages/AboutServiceProviderPage";
 import AuctionsPage from "./pages/AuctionsPage";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
@@ -20,7 +24,11 @@ export type AppPage =
   | "/dashboard/buyer"
   | "/dashboard/seller"
   | "/dashboard/farm"
-  | "/dashboard/admin";
+  | "/dashboard/admin"
+  | "/about/buyer"
+  | "/about/seller"
+  | "/about/cattle-farmer"
+  | "/about/service-provider";
 
 export const navigate = (page: AppPage) => {
   window.history.pushState({}, "", page);
@@ -87,15 +95,17 @@ export default function App() {
       return isAuthenticated ? <FarmDashboard /> : <Auth />;
     if (path === "/dashboard/admin")
       return isAuthenticated ? <AdminDashboard /> : <Auth />;
+    if (path === "/about/buyer") return <AboutBuyerPage />;
+    if (path === "/about/seller") return <AboutSellerPage />;
+    if (path === "/about/cattle-farmer") return <AboutCattleFarmerPage />;
+    if (path === "/about/service-provider") return <AboutServiceProviderPage />;
     return <Landing />;
   };
 
   return (
     <>
       <div
-        className={`transition-opacity duration-200 ${
-          transitioning ? "opacity-0" : "opacity-100"
-        }`}
+        className={`transition-opacity duration-200 ${transitioning ? "opacity-0" : "opacity-100"}`}
       >
         {renderPage()}
       </div>
